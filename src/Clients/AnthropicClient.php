@@ -47,8 +47,18 @@ final class AnthropicClient
         return $preparedMessages;
     }
 
-    public function request(string $prompt, array $messages)
+    public function request(array $messages)
     {
+        $prompt = "";
+        $filteredMessages = [];
+        foreach($messages as $message) {
+            if($message['role'] === 'system') {
+                $prompt = $message['content'];
+            }else{
+                $filteredMessages[] = $message;
+            }
+        }
+
         $body = [
             'model' => $this->model,
             'system' => [
@@ -58,7 +68,7 @@ final class AnthropicClient
                     'cache_control' => ['type' => 'ephemeral'],
                 ],
             ],
-            'messages' => $this->_prepareMessagesArray($messages),
+            'messages' => $this->_prepareMessagesArray($filteredMessages),
             'max_tokens' => $this->maxTokens,
             'temperature' => $this->temperature,
         ];
@@ -88,13 +98,6 @@ final class AnthropicClient
         return LlmResponseDto::fromAnthropicResponse($result);
     }
 
-    /**
-     * https://docs.anthropic.com/en/api/creating-message-batches
-     *
-     * @param  array  $requests
-     *
-     * @throws \GuzzleHttp\Exception\GuzzleException
-     */
     public function createMessageBatch(array $batchRequests): ?string
     {
         $curl = curl_init();
