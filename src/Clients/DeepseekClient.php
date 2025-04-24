@@ -1,8 +1,7 @@
 <?php
 
-namespace App\Services\AiVendors;
+namespace Slider23\PhpLlmToolbox\Clients;
 
-use App\Dto\AnthropicResponseDto;
 use OpenAI;
 
 class DeepseekClient

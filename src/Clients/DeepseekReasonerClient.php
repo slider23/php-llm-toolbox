@@ -1,21 +1,26 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Slider23\PhpLlmToolbox\Clients;
 
 use Slider23\PhpLlmToolbox\Dto\LlmResponseDto;
-use Slider23\PhpLlmToolbox\Exceptions\LlmRequestException;
 
-class DeepseekReasonerClient extends LlmVendorClient
+final class DeepseekReasonerClient extends LlmVendorClient
 {
     public string $model;
+
     public string $apiKey;
+
     public int $max_tokens = 8192;
+
     public float $temperature = 1;
+
     public float $top_p = 1;
 
     private bool $isDebug = false;
 
-    public function __construct(string $apiKey = null, string $model = "deepseek-reasoner")
+    public function __construct(?string $apiKey = null, string $model = 'deepseek-reasoner')
     {
         $this->model = $model;
         $this->apiKey = $apiKey;
@@ -24,7 +29,7 @@ class DeepseekReasonerClient extends LlmVendorClient
     public function request(array $messages): LlmResponseDto
     {
         $curl = curl_init();
-        curl_setopt_array($curl, array(
+        curl_setopt_array($curl, [
             CURLOPT_URL => 'https://api.deepseek.com/chat/completions',
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_ENCODING => '',
@@ -34,18 +39,18 @@ class DeepseekReasonerClient extends LlmVendorClient
             CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
             CURLOPT_CUSTOMREQUEST => 'POST',
             CURLOPT_POSTFIELDS => json_encode([
-                "messages" => $this->normalizeMessagesArray($messages),
+                'messages' => $this->normalizeMessagesArray($messages),
                 'model' => $this->model,
                 'max_tokens' => $this->max_tokens,
                 'temperature' => $this->temperature,
                 'top_p' => $this->top_p,
             ]),
-            CURLOPT_HTTPHEADER => array(
+            CURLOPT_HTTPHEADER => [
                 'Content-Type: application/json',
                 'Accept: application/json',
-                'Authorization: Bearer '.$this->apiKey
-            ),
-        ));
+                'Authorization: Bearer ' . $this->apiKey,
+            ],
+        ]);
         $response = curl_exec($curl);
         curl_close($curl);
 
@@ -53,6 +58,7 @@ class DeepseekReasonerClient extends LlmVendorClient
         $this->throwIfError($curl, $result);
 
         $dto = LlmResponseDto::fromDeepseekResponse($result);
+
         return $dto;
     }
 }

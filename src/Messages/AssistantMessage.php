@@ -1,14 +1,16 @@
 <?php
 
-namespace App\Services\AiVendors;
+declare(strict_types=1);
 
-class AssistantMessage
+namespace Slider23\PhpLlmToolbox\Messages;
+
+final class AssistantMessage
 {
     public static function make(string $content): array
     {
         return [
             'role' => 'assistant',
-            'content' => $content
+            'content' => $content,
         ];
     }
 }

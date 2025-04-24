@@ -1,8 +1,7 @@
 <?php
 
-namespace App\Services\AiVendors;
+declare(strict_types=1);
 
-class ImgMessage
-{
+namespace Slider23\PhpLlmToolbox\Messages;
 
-}
+final class ImgMessage {}

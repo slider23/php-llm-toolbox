@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "4061b11abfda65abc026d8253d12197e",
+    "content-hash": "8a0db794b8f7272413a184702cf0ab54",
     "packages": [
         {
             "name": "guzzlehttp/guzzle",
@@ -1269,16 +1269,16 @@
     "packages-dev": [
         {
             "name": "buggregator/trap",
-            "version": "1.13.12",
+            "version": "1.13.13",
             "source": {
                 "type": "git",
                 "url": "https://github.com/buggregator/trap.git",
-                "reference": "2a0a6060f7d312e5296a393a303d5867005ff296"
+                "reference": "0b07ad70070355c0142debee556db4d70608cab0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/buggregator/trap/zipball/2a0a6060f7d312e5296a393a303d5867005ff296",
-                "reference": "2a0a6060f7d312e5296a393a303d5867005ff296",
+                "url": "https://api.github.com/repos/buggregator/trap/zipball/0b07ad70070355c0142debee556db4d70608cab0",
+                "reference": "0b07ad70070355c0142debee556db4d70608cab0",
                 "shasum": ""
             },
             "require": {
@@ -1355,7 +1355,7 @@
             ],
             "support": {
                 "issues": "https://github.com/buggregator/trap/issues",
-                "source": "https://github.com/buggregator/trap/tree/1.13.12"
+                "source": "https://github.com/buggregator/trap/tree/1.13.13"
             },
             "funding": [
                 {
@@ -1367,7 +1367,7 @@
                     "type": "patreon"
                 }
             ],
-            "time": "2025-04-03T01:29:54+00:00"
+            "time": "2025-04-16T14:19:54+00:00"
         },
         {
             "name": "clue/stream-filter",
