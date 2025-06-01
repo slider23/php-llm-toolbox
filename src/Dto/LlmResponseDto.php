@@ -2,6 +2,8 @@
 
 namespace Slider23\PhpLlmToolbox\Dto;
 
+use Slider23\PhpLlmToolbox\Exceptions\LlmVendorException;
+
 class LlmResponseDto
 {
     public ?string $id = null;
@@ -19,6 +21,7 @@ class LlmResponseDto
     public ?float $cost = null;
     public ?int $httpStatusCode = null;
     public ?string $status = null;
+    public bool $error = false;
     public ?string $errorMessage = null;
 
     public array $rawResponse = [];
@@ -30,29 +33,9 @@ class LlmResponseDto
 
     public static function fromAnthropicResponse(array $response): self
     {
-        $pricesByModel = [
-            'claude-3-5-sonnet-20241022' => [
-                'inputTokens' =>                   3 / 1_000_000,
-                'cacheCreationInputTokens' =>    3.75 / 1_000_000,
-                'cacheReadInputTokens' =>        0.3 / 1_000_000,
-                'outputTokens' =>                  15 / 1_000_000,
-            ],
-            'claude-3-7-sonnet-20250219' => [
-                'inputTokens' =>                   3 / 1_000_000,
-                'cacheCreationInputTokens' =>    3.75 / 1_000_000,
-                'cacheReadInputTokens' =>        0.3 / 1_000_000,
-                'outputTokens' =>                  15 / 1_000_000,
-            ],
-            'claude-3-5-haiku-20241022' => [
-                'inputTokens' =>                   0.8 / 1_000_000,
-                'cacheCreationInputTokens' =>    0.8 / 1_000_000,
-                'cacheReadInputTokens' =>        0.8 / 1_000_000,
-                'outputTokens' =>                  4 / 1_000_000,
-            ]
-        ];
-
         $dto = new LlmResponseDto();
         $dto->vendor = "anthropic";
+        $dto->status = "success";
         $dto->rawResponse = $response;
         $dto->id = $response['id'] ?? null;
         $dto->model = $response['model'] ?? null;
@@ -73,6 +56,13 @@ class LlmResponseDto
                     + $price['outputTokens'] * $dto->outputTokens;
             }
             $dto->totalTokens = max($dto->inputTokens, ($dto->cacheCreationInputTokens + $dto->cacheReadInputTokens)) + $dto->outputTokens;
+        }
+        if(isset($response['error'])){
+            $type = $response['error']['type'] ?? null;
+            $message = $response['error']['message'] ?? null;
+            $dto->errorMessage = "[$type] $message";
+            $dto->status = "error";
+            $dto->error = true;
         }
         return $dto;
     }
@@ -121,7 +111,7 @@ class LlmResponseDto
         return $dto;
     }
 
-    public static function fromDeepseekResponse(array $result)
+    public static function fromDeepseekResponse(array $result): LlmResponseDto
     {
         $pricesByModel = [
             "deepseek-chat" => [
@@ -157,7 +147,7 @@ class LlmResponseDto
         return $dto;
     }
 
-    public static function fromOpenrouterResponse(array $resultArray)
+    public static function fromOpenrouterResponse(array $resultArray): LlmResponseDto
     {
         $pricesByModel = [
             'openai/gpt-4o-mini' => [
@@ -190,6 +180,12 @@ class LlmResponseDto
         $dto->id = $resultArray['id'] ?? null;
         $dto->model = $resultArray['model'] ?? null;
         $dto->vendor = "openrouter";
+        if(isset($resultArray['error'])){
+            $dto->errorMessage = $resultArray['error']['message'] ?? null;
+            $dto->httpStatusCode = $resultArray['error']['status'] ?? null;
+            $dto->status = "error";
+            throw new LlmVendorException("Openrouter error: " . $dto->errorMessage, $dto->httpStatusCode);
+        }
         if(isset($resultArray['choices'][0])){
             $dto->assistant_content = $resultArray['choices'][0]['message']['content'] ?? null;
             $dto->finish_reason = $resultArray['choices'][0]['finish_reason'] ?? null;
@@ -198,24 +194,19 @@ class LlmResponseDto
             $dto->inputTokens = $resultArray['usage']['prompt_tokens'] ?? null;
             $dto->outputTokens = $resultArray['usage']['completion_tokens'] ?? null;
             $dto->totalTokens = $resultArray['usage']['total_tokens'] ?? null;
-            $price = $pricesByModel[$resultArray['model']] ?? null;
-            if($price){
-                $dto->cost =
-                    $price['inputTokens'] * $dto->inputTokens
-                    + $price['outputTokens'] * $dto->outputTokens;
-            }
+            $dto = (new CostCalculator())->calculateCostToDto($dto);
         }
         return $dto;
     }
 
     public function _extractThinking(): void
     {
-        if(str_contains($this->assistant_content, "<thinking>")){
+        if(strpos($this->assistant_content, "<thinking>") !== false){
             preg_match("/<thinking>(.*?)<\/thinking>/", $this->assistant_content, $matches);
             $this->assistant_reasoning_content = $matches[1] ?? null;
             $this->assistant_content = preg_replace("/<thinking>.*?<\/thinking>/", "", $this->assistant_content);
         }
-        if(str_contains($this->assistant_content, "<think>")){
+        if(strpos($this->assistant_content, "<think>") !== false){
             preg_match("/<think>(.*?)<\/think>/", $this->assistant_content, $matches);
             $this->assistant_reasoning_content = $matches[1] ?? null;
             $this->assistant_content = preg_replace("/<think>.*?<\/think>/", "", $this->assistant_content);
