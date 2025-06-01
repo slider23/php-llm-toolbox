@@ -2,94 +2,75 @@
 
 namespace Slider23\PhpLlmToolbox\Clients;
 
-use OpenAI;
+use Slider23\PhpLlmToolbox\Dto\LlmResponseDto;
+use Slider23\PhpLlmToolbox\Exceptions\LlmVendorException;
 
-class DeepseekClient
+final class DeepseekClient extends LlmVendorClient implements LlmVendorClientInterface
 {
     public string $model;
+
     public string $apiKey;
-    public int $maxTokens = 8192;
-    public string $responseFormat = 'text'; // json
 
-    public array $price = [
-        "deepseek-chat" => [
+    public int $timeout = 60; // seconds
 
-        ]
-    ];
-    public OpenAI\Factory $openaiClient;
+    // https://api-docs.deepseek.com/api/create-chat-completion
+    public int $max_tokens = 8192;
+    public float $temperature = 1;
+    public float $frequency_penalty = 0;
+    public float $presence_penalty = 0;
+    public string $response_format = 'text'; // text , json_object
+    public float $top_p = 1;
+    public ?string $stop = null;
+    private bool $isDebug = false;
 
-    public function __construct(string $model = "deepseek-chat", string $apiKey = null)
+
+    public function __construct(string $model, string $apiKey)
     {
         $this->model = $model;
-        $this->apiKey = $apiKey ?? config('services.deepseek.api_key');
-        $this->openaiClient = OpenAI::factory()
-            ->withApiKey($this->apiKey)
-            ->withBaseUri('https://api.deepseek.com/beta');
+        $this->apiKey = $apiKey;
     }
 
-    public function request(array $messages)
+    public function request(array $messages): LlmResponseDto
     {
-        $preparedMessages = [];
-        if(isset($messages['role']) && isset($messages['content'])) {
-            // вариант, когда передан один элемент
-            $preparedMessages[] = $messages;
-        }else{
-            // вариант, когда передан массив истории переписки или few-shot
-            foreach ($messages as $message) {
-                $preparedMessages[] = $message;
-            }
-        }
-
-        $body = [
-            "messages" => $preparedMessages,
-            'model' => $this->model,
-            'frequency_penalty' => 0,
-            'max_tokens' => $this->maxTokens,
-            'presence_penalty' => 0,
-            'response_format' => [
-                'type' => $this->responseFormat
-            ],
-            'stop' => null,
-            'stream' => false,
-            'stream_options' => null,
-            'temperature' => 1,
-            'top_p' => 1,
-            'tools' => null,
-            'tool_choice' => 'none',
-            'logprobs' => false,
-            'top_logprobs' => null
-        ];
-//        trap($body);
-        $bodyJson = json_encode($body);
-
         $curl = curl_init();
-        curl_setopt_array($curl, array(
+        curl_setopt_array($curl, [
             CURLOPT_URL => 'https://api.deepseek.com/chat/completions',
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_ENCODING => '',
             CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 0,
+            CURLOPT_TIMEOUT => $this->timeout,
             CURLOPT_FOLLOWLOCATION => true,
             CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
             CURLOPT_CUSTOMREQUEST => 'POST',
-            CURLOPT_POSTFIELDS => $bodyJson,
-            CURLOPT_HTTPHEADER => array(
+            CURLOPT_POSTFIELDS => json_encode([
+                'messages' => $this->normalizeMessagesArray($messages),
+                'model' => $this->model,
+                'max_tokens' => $this->max_tokens,
+                'temperature' => $this->temperature,
+                'top_p' => $this->top_p,
+                'frequency_penalty' => $this->frequency_penalty,
+                'presence_penalty' => $this->presence_penalty,
+                'response_format' => [
+                    'type' => $this->response_format,
+                ],
+                'stop' => $this->stop,
+            ]),
+            CURLOPT_HTTPHEADER => [
                 'Content-Type: application/json',
                 'Accept: application/json',
-                'Authorization: Bearer '.$this->apiKey
-            ),
-        ));
+                'Authorization: Bearer ' . $this->apiKey,
+            ],
+        ]);
         $response = curl_exec($curl);
-        trap($response);
-        $statusCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-        if($statusCode != 200){
-            trap($body);
-            throw new \Exception("Deepseek API error: $response");
-        }
         curl_close($curl);
-        $result = json_decode($response, true);
-        trap(json_last_error_msg());
-//        trap($result);
-        return $result;
+
+        $result = $this->jsonDecode($response);
+        $this->throwIfError($curl, $result);
+
+        $dto = LlmResponseDto::fromDeepseekResponse($result);
+        if($dto->status == "error") {
+            throw new LlmVendorException("Deepseek error: ".$dto->errorMessage);
+        }
+        return $dto;
     }
 }

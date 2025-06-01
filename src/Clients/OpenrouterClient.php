@@ -2,10 +2,11 @@
 
 namespace Slider23\PhpLlmToolbox\Clients;
 
-use Slider23\PhpLlmToolbox\Dto\LlmResponseDto;
 use Slider23\PhpLlmToolbox\Clients\LlmVendorClient;
+use Slider23\PhpLlmToolbox\Dto\LlmResponseDto;
+use Slider23\PhpLlmToolbox\Exceptions\LlmVendorException;
 
-class OpenrouterClient extends LlmVendorClient
+class OpenrouterClient extends LlmVendorClient implements LlmVendorClientInterface
 {
     public string $model;
     public string $apiKey;
@@ -89,8 +90,15 @@ class OpenrouterClient extends LlmVendorClient
             CURLOPT_TIMEOUT => $this->timeout
         ]);
         $response = curl_exec($curl);
-        $responseArray = $this->jsonDecode($response);
-        $dto = LlmResponseDto::fromOpenrouterResponse($responseArray);
+        curl_close($curl);
+
+        $result = $this->jsonDecode($response);
+        $this->throwIfError($curl, $result);
+
+        $dto = LlmResponseDto::fromOpenrouterResponse($result);
+        if($dto->status == "error") {
+            throw new LlmVendorException("Openrouter error: ".$dto->errorMessage);
+        }
         return $dto;
     }
 }

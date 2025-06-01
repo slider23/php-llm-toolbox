@@ -1,12 +1,11 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Slider23\PhpLlmToolbox\Clients;
 
 use Slider23\PhpLlmToolbox\Dto\LlmResponseDto;
+use Slider23\PhpLlmToolbox\Exceptions\LlmVendorException;
 
-final class AnthropicClient
+final class AnthropicClient extends LlmVendorClient implements LlmVendorClientInterface
 {
     public string $model;
 
@@ -16,15 +15,14 @@ final class AnthropicClient
 
     public int $timeout = 180;
 
-    public int $maxTokens = 3000; // 8192 max
-
+    public int $max_tokens = 3000; // 8192 max
     public float $temperature = 0;
+    public int $thinking = 0; // количество токенов, которые будут использованы для размышлений
 
-    public int $maxAttempts = 3;
 
     public bool $debug = false;
 
-    public function __construct(string $model = 'claude-3-5-sonnet-latest', ?string $apiKey = null, ?string $apiVersion = null)
+    public function __construct(string $model, ?string $apiKey = null, ?string $apiVersion = "2023-06-01")
     {
         $this->model = $model;
         $this->apiKey = $apiKey;
@@ -47,13 +45,20 @@ final class AnthropicClient
         return $preparedMessages;
     }
 
-    public function request(array $messages)
+    public function request(array $messages): LlmResponseDto
     {
-        $prompt = "";
+        $systemArray = [];
         $filteredMessages = [];
+        // Extract prompt to Anthropic-specific system message
         foreach($messages as $message) {
             if($message['role'] === 'system') {
-                $prompt = $message['content'];
+                $systemArray = $message['content'];
+                if(! is_array($systemArray)) {
+                    $systemArray = [
+                        'type' => 'text',
+                        'text' => $systemArray,
+                    ];
+                }
             }else{
                 $filteredMessages[] = $message;
             }
@@ -61,17 +66,20 @@ final class AnthropicClient
 
         $body = [
             'model' => $this->model,
-            'system' => [
-                [
-                    'type' => 'text',
-                    'text' => $prompt,
-                    'cache_control' => ['type' => 'ephemeral'],
-                ],
-            ],
+            'system' => $systemArray,
             'messages' => $this->_prepareMessagesArray($filteredMessages),
-            'max_tokens' => $this->maxTokens,
+            'max_tokens' => $this->max_tokens,
             'temperature' => $this->temperature,
         ];
+        if($this->thinking > 0) {
+            $body['thinking'] = [
+                "type" => "enabled",
+                "budget_tokens" => $this->thinking
+            ];
+        }
+
+        trap($body);
+        trap(json_encode($body, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
 
         $curl = curl_init();
         curl_setopt_array($curl, [
@@ -95,7 +103,11 @@ final class AnthropicClient
 
         $result = json_decode($content, true);
 
-        return LlmResponseDto::fromAnthropicResponse($result);
+        $dto = LlmResponseDto::fromAnthropicResponse($result);
+        if($dto->status == "error") {
+            throw new LlmVendorException("Anthropic error: ".$dto->errorMessage);
+        }
+        return $dto;
     }
 
     public function createMessageBatch(array $batchRequests): ?string
