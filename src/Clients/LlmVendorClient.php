@@ -60,7 +60,7 @@ abstract class LlmVendorClient
     public function jsonDecode(string $json)
     {
         try{
-            return json_decode($json, true, flags: JSON_THROW_ON_ERROR);
+            return json_decode($json, true,  JSON_THROW_ON_ERROR);
         }catch (\JsonException $e){
             throw new WrongJsonException($e);
         }
