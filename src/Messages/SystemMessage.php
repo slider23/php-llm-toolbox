@@ -6,11 +6,12 @@ namespace Slider23\PhpLlmToolbox\Messages;
 
 final class SystemMessage
 {
-    public static function make(string $content): array
+    public static function make($content): array
     {
-        return [
+        $promptArray = [
             'role' => 'system',
             'content' => $content,
         ];
+        return $promptArray;
     }
 }
