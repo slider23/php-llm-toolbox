@@ -45,16 +45,20 @@ abstract class LlmVendorClient
 
     abstract public function request(array $messages): LlmResponseDto;
 
-    public function throwIfError($curl, array $response): void
+    public function throwIfError($curl, ?array $response): void
     {
-        if (isset($response['error'])) {
-            throw new LlmRequestException($response['error']);
-        }
         if(curl_errno($curl)) {
             $error = curl_error($curl);
             $errorCode = curl_errno($curl);
             throw new LlmRequestException("CURL Error: ".$error, $errorCode);
         }
+        if(!$response) {
+            throw new LlmRequestException("CURL Error: empty answer from vendor");
+        }
+        if (isset($response['error'])) {
+            throw new LlmRequestException($response['error']);
+        }
+
     }
 
     public function jsonDecode(string $json)

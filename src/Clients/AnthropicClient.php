@@ -4,6 +4,7 @@ namespace Slider23\PhpLlmToolbox\Clients;
 
 use Slider23\PhpLlmToolbox\Dto\LlmResponseDto;
 use Slider23\PhpLlmToolbox\Exceptions\LlmVendorException;
+use Slider23\PhpLlmToolbox\Helper;
 
 final class AnthropicClient extends LlmVendorClient implements LlmVendorClientInterface
 {
@@ -15,7 +16,7 @@ final class AnthropicClient extends LlmVendorClient implements LlmVendorClientIn
 
     public int $timeout = 180;
 
-    public int $max_tokens = 3000; // 8192 max
+    public int $max_tokens = 4000; // 8192 max
     public float $temperature = 0;
     public int $thinking = 0; // количество токенов, которые будут использованы для размышлений
 
@@ -77,9 +78,6 @@ final class AnthropicClient extends LlmVendorClient implements LlmVendorClientIn
                 "budget_tokens" => $this->thinking
             ];
         }
-
-        trap($body);
-        trap(json_encode($body, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
 
         $curl = curl_init();
         curl_setopt_array($curl, [
@@ -202,7 +200,7 @@ final class AnthropicClient extends LlmVendorClient implements LlmVendorClientIn
             $result = [];
             foreach ($items as $item) {
                 //                trap($item);
-                if (json_validate($item) === false) {
+                if (Helper::isJson($item) === false) {
                     // TODO log error
                 }
                 $result[] = json_decode($item, true);

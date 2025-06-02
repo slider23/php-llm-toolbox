@@ -11,7 +11,7 @@ final class DeepseekClient extends LlmVendorClient implements LlmVendorClientInt
 
     public string $apiKey;
 
-    public int $timeout = 60; // seconds
+    public int $timeout = 180; // seconds
 
     // https://api-docs.deepseek.com/api/create-chat-completion
     public int $max_tokens = 8192;
@@ -64,6 +64,7 @@ final class DeepseekClient extends LlmVendorClient implements LlmVendorClientInt
         $response = curl_exec($curl);
         curl_close($curl);
 
+        trap($response);
         $result = $this->jsonDecode($response);
         $this->throwIfError($curl, $result);
 

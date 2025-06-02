@@ -66,28 +66,61 @@ class CostCalculator
         $priceCreationInputTokens = 0;
         $priceReadInputTokens = 0;
         $priceOutputTokens = 0;
+        $price = 0;
 
         if($vendor === 'openrouter') {
             $openRouterModelsPath = dirname(__DIR__, 2) . '/resources/openrouter_models.json';
 
             $openRouterModels = json_decode(file_get_contents($openRouterModelsPath), true);
             if (isset($openRouterModels[$model])) {
-                $model = $openRouterModels[$model];
+                $openrouterModel = $openRouterModels[$model];
             }
 
-            $priceInputTokens = $model['pricing']['prompt'] ?? 0;
-            $priceCreationInputTokens = $model['pricing']['input_cache_write'] ?? $priceInputTokens;
-            $priceReadInputTokens = $model['pricing']['input_cache_read'] ?? $priceInputTokens;
-            $priceOutputTokens = $model['pricing']['completion'] ?? 0;
-        }else{
+            $priceInputTokens = $openrouterModel['pricing']['prompt'] ?? 0;
+            $priceCreationInputTokens = $openrouterModel['pricing']['input_cache_write'] ?? 0;
+            $priceReadInputTokens = $openrouterModel['pricing']['input_cache_read'] ?? 0;
+            $priceOutputTokens = $openrouterModel['pricing']['completion'] ?? 0;
 
+            $price += (int)$inputTokens * $priceInputTokens;
+//            $price += (int)$cacheCreationInputTokens * $priceCreationInputTokens;
+//            $price += (int)$cacheReadInputTokens * $priceReadInputTokens;
+            $price += (int)$outputTokens * $priceOutputTokens;
+
+        }elseif($vendor === 'deepseek') {
+
+            $vendorPrices = $this->pricesByModel[$vendor] ?? null;
+            if(!$vendorPrices) throw new \Exception("Vendor $vendor not found in pricesByModel");
+            $prices = $vendorPrices[$model] ?? null;
+            if(!$prices) throw new \Exception("Model $model not found for vendor $vendor in pricesByModel");
+
+            $priceInputTokens = $prices['inputTokens'] ?? 0;
+            $priceCreationInputTokens = $prices['cacheCreationInputTokens'] ?? 0;
+            $priceReadInputTokens = $prices['cacheReadInputTokens'] ?? 0;
+            $priceOutputTokens = $prices['outputTokens'] ?? 0;
+
+            $price += (int)$inputTokens * 0; // Deepseek give cache hit and miss tokens as input tokens
+            $price += (int)$cacheCreationInputTokens * $priceCreationInputTokens;
+            $price += (int)$cacheReadInputTokens * $priceReadInputTokens;
+            $price += (int)$outputTokens * $priceOutputTokens;
+        }elseif($vendor === 'anthropic') {
+
+            $vendorPrices = $this->pricesByModel[$vendor] ?? null;
+            if (!$vendorPrices) throw new \Exception("Vendor $vendor not found in pricesByModel");
+            $prices = $vendorPrices[$model] ?? null;
+            if (!$prices) throw new \Exception("Model $model not found for vendor $vendor in pricesByModel");
+
+            $priceInputTokens = $prices['inputTokens'] ?? 0;
+            $priceCreationInputTokens = $prices['cacheCreationInputTokens'] ?? 0;
+            $priceReadInputTokens = $prices['cacheReadInputTokens'] ?? 0;
+            $priceOutputTokens = $prices['outputTokens'] ?? 0;
+
+            $price += (int)$inputTokens * $priceInputTokens;
+            $price += (int)$cacheCreationInputTokens * $priceCreationInputTokens;
+            $price += (int)$cacheReadInputTokens * $priceReadInputTokens;
+            $price += (int)$outputTokens * $priceOutputTokens;
         }
 
-        $price = 0;
-        $price += (int)$inputTokens * $priceInputTokens;
-        $price += (int)$cacheCreationInputTokens * $priceCreationInputTokens;
-        $price += (int)$cacheReadInputTokens * $priceReadInputTokens;
-        $price += (int)$outputTokens * $priceOutputTokens;
+
 
         return $price;
     }
