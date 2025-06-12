@@ -4,7 +4,7 @@ namespace Slider23\PhpLlmToolbox;
 
 class Updater
 {
-    public static function updateModels(string $vendor = "openrouter", string $apiKey): array
+    public static function updateModels(string $vendor, string $apiKey): array
     {
         $curl = curl_init();
 
@@ -42,14 +42,9 @@ class Updater
             file_put_contents($path, json_encode($modelsById, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
         }
 
-
-
-
-
-
         return [
             'status' => 'success',
-            'message' => "Models updated successfully for vendor: $vendor"
+            'message' => "Vendor: $vendor . Updated $numModels models.",
         ];
     }
 }
