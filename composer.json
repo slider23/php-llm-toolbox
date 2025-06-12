@@ -8,9 +8,17 @@
         "ext-json": "*",
         "ext-simplexml": "*"
     },
+    "require-dev": {
+        "phpunit/phpunit": "^9.5"
+    },
     "autoload": {
         "psr-4": {
             "Slider23\\PhpLlmToolbox\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Slider23\\PhpLlmToolbox\\Tests\\": "tests/"
         }
     },
     "authors": [
