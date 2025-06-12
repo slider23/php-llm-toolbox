@@ -3,7 +3,6 @@
 namespace Slider23\PhpLlmToolbox\Clients;
 
 use JsonException;
-use OpenAI\Exceptions\UnserializableResponse;
 use Slider23\PhpLlmToolbox\Dto\LlmResponseDto;
 use Slider23\PhpLlmToolbox\Exceptions\LlmRequestException;
 use Slider23\PhpLlmToolbox\Exceptions\WrongJsonException;

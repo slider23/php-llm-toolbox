@@ -17,12 +17,23 @@ class LlmResponseDto
     public ?int $outputTokens = null;
     public ?int $cacheCreationInputTokens = null;
     public ?int $cacheReadInputTokens = null;
+    public ?int $thinkTokens = null;
+    public ?int $citationTokens = null;
     public ?int $totalTokens = null;
     public ?float $cost = null;
+    public ?string $perplexitySearchContextSize = null;
+    public ?int $perplexityCitationTokens = null;
+    public ?int $perplexityNumSearchQueries = null;
     public ?int $httpStatusCode = null;
     public ?string $status = null;
     public bool $error = false;
     public ?string $errorMessage = null;
+
+    public ?array $citations = [];
+    /**
+     * @var SearchResultDto[]
+     */
+    public ?array $search_results = [];
 
     public array $rawResponse = [];
 
@@ -113,6 +124,28 @@ class LlmResponseDto
             $dto->totalTokens = $resultArray['usage']['total_tokens'] ?? null;
             $dto = (new CostCalculator())->calculateCostToDto($dto);
         }
+        return $dto;
+    }
+
+    public static function fromPerplexityResponse(array $result): LlmResponseDto
+    {
+        $dto = new LlmResponseDto();
+        $dto->vendor = "perplexity";
+        $dto->status = "success";
+        $dto->rawResponse = $result;
+        $dto->id = $result['id'] ?? null;
+        $dto->model = $result['model'] ?? null;
+        $dto->assistant_content = $result['choices'][0]['message']['content'] ?? null;
+        $dto->_extractThinking();
+        $dto->finish_reason = $result['choices'][0]['finish_reason'] ?? null;
+        if(isset($result['usage'])){
+            $dto->inputTokens = $result['usage']['prompt_tokens'] ?? null;
+            $dto->outputTokens = $result['usage']['completion_tokens'] ?? null;
+            $dto->totalTokens = $result['usage']['total_tokens'] ?? null;
+            $dto = (new CostCalculator())->calculateCostToDto($dto);
+        }
+        $dto->citations = $result['citations'] ?? null;
+        $dto->search_results = $result['search_results'] ?? null;
         return $dto;
     }
 
