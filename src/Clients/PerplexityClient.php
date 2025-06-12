@@ -11,7 +11,7 @@ class PerplexityClient extends LlmVendorClient implements LlmVendorClientInterfa
     public string $apiKey;
     public string $model;
     public int $timeout = 180; // seconds
-    public string $search_mode = 'web'; // 'web' or 'academic
+    public string $search_mode = 'web'; // 'web' or 'academic'
     public string $reasoning_effort = 'medium'; // 'low', 'medium', 'high' . Only for sonar-deep-research model
     public int $max_tokens = 8192;
     public float $temperature = 0.2;
@@ -19,15 +19,15 @@ class PerplexityClient extends LlmVendorClient implements LlmVendorClientInterfa
     public array $search_domain_filter = []; // A list of domains to limit search results to. Currently limited to 10 domains for Allowlisting and Denylisting. For Denylisting, add a - at the beginning of the domain string.
     public bool $return_images = false; // Determines whether search results should include images.
     public bool $return_related_questions = false; // Determines whether related questions should be returned.
-    public string $search_recency_filter = ''; // Filters search results based on time (e.g., 'week', 'day').
+    public ?string $search_recency_filter = null; // 'hour', 'day', 'week', 'month' or 'year'
     public string $search_after_date_filter = ''; // Filters search results after a specific date (e.g., '2023-01-01').
     public string $search_before_date_filter = '';
     public int $top_k = 0;
     public bool $stream = false;
     public int $presence_penalty = 0;
     public int $frequency_penalty = 0;
-    public array $response_format; // json schema
-    public array $web_search_options;
+    public ?array $response_format = null; // json schema
+    public ?array $web_search_options = null;
 
     public function __construct(string $model , string $apiKey)
     {
@@ -38,8 +38,33 @@ class PerplexityClient extends LlmVendorClient implements LlmVendorClientInterfa
     public function request(array $messages): LlmResponseDto
     {
         $curl = curl_init();
+        $body = [
+            'messages' => $this->normalizeMessagesArray($messages),
+            'model' => $this->model,
+            'max_tokens' => $this->max_tokens,
+            'temperature' => $this->temperature,
+            'top_p' => $this->top_p,
+            'search_mode' => $this->search_mode,
+            'reasoning_effort' => $this->reasoning_effort,
+            'search_domain_filter' => $this->search_domain_filter,
+            'return_images' => $this->return_images,
+            'return_related_questions' => $this->return_related_questions,
+            'search_recency_filter' => $this->search_recency_filter,
+            'search_after_date_filter' => $this->search_after_date_filter,
+            'search_before_date_filter' => $this->search_before_date_filter,
+            'top_k' => $this->top_k,
+            'stream' => $this->stream,
+            'presence_penalty' => $this->presence_penalty,
+            'frequency_penalty' => $this->frequency_penalty,
+        ];
+        if($this->response_format) {
+            $body['response_format'] = $this->response_format;
+        }
+        if($this->web_search_options) {
+            $body['web_search_options'] = $this->web_search_options;
+        }
         curl_setopt_array($curl, [
-            CURLOPT_URL => 'https://api.deepseek.com/chat/completions',
+            CURLOPT_URL => 'https://api.perplexity.ai/chat/completions',
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_ENCODING => '',
             CURLOPT_MAXREDIRS => 10,
@@ -47,27 +72,7 @@ class PerplexityClient extends LlmVendorClient implements LlmVendorClientInterfa
             CURLOPT_FOLLOWLOCATION => true,
             CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
             CURLOPT_CUSTOMREQUEST => 'POST',
-            CURLOPT_POSTFIELDS => json_encode([
-                'messages' => $this->normalizeMessagesArray($messages),
-                'model' => $this->model,
-                'max_tokens' => $this->max_tokens,
-                'temperature' => $this->temperature,
-                'top_p' => $this->top_p,
-                'response_format' => $this->response_format,
-                'web_search_options' => $this->web_search_options,
-                'search_mode' => $this->search_mode,
-                'reasoning_effort' => $this->reasoning_effort,
-                'search_domain_filter' => $this->search_domain_filter,
-                'return_images' => $this->return_images,
-                'return_related_questions' => $this->return_related_questions,
-                'search_recency_filter' => $this->search_recency_filter,
-                'search_after_date_filter' => $this->search_after_date_filter,
-                'search_before_date_filter' => $this->search_before_date_filter,
-                'top_k' => $this->top_k,
-                'stream' => $this->stream,
-                'presence_penalty' => $this->presence_penalty,
-                'frequency_penalty' => $this->frequency_penalty,
-            ]),
+            CURLOPT_POSTFIELDS => json_encode($body),
             CURLOPT_HTTPHEADER => [
                 'Content-Type: application/json',
                 'Accept: application/json',
