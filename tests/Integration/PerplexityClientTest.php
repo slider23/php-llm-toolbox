@@ -12,13 +12,11 @@ use Slider23\PhpLlmToolbox\Messages\UserMessage;
 class PerplexityClientTest extends TestCase
 {
     private ?string $apiKey;
-    private ?string $model;
 
     protected function setUp(): void
     {
         parent::setUp();
         $this->apiKey = $_ENV['PERPLEXITY_API_KEY'] ?? null;
-        $this->model = "sonar";
 
         if (!$this->apiKey) {
             $this->markTestSkipped(
@@ -27,9 +25,9 @@ class PerplexityClientTest extends TestCase
         }
     }
 
-    public function testSuccessfulRequest(): void
+    public function testSuccessfulBaseRequest(): void
     {
-        $client = new PerplexityClient($this->model, $this->apiKey);
+        $client = new PerplexityClient("sonar", $this->apiKey);
 
         $client->timeout = 10; // Можно установить меньший таймаут для тестов
 
@@ -55,15 +53,15 @@ class PerplexityClientTest extends TestCase
         }
     }
 
-//    public function testRequestWithInvalidApiKey(): void
-//    {
-//        $this->expectException(LlmVendorException::class);
-//
-//        // Используем заведомо неверный API ключ
-//        $client = new PerplexityClient($this->model, 'invalid-api-key');
-//        $messages = [
-//            UserMessage::make("Hello")
-//        ];
-//        $client->request($messages);
-//    }
+    public function testRequestWithInvalidApiKey(): void
+    {
+        $this->expectException(LlmVendorException::class);
+
+        // Используем заведомо неверный API ключ
+        $client = new PerplexityClient("sonar", 'invalid-api-key');
+        $messages = [
+            UserMessage::make("Hello")
+        ];
+        $client->request($messages);
+    }
 }
