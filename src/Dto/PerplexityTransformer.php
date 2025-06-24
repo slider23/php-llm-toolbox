@@ -59,7 +59,6 @@ class PerplexityTransformer
         $dto->id = $responseArray['id'] ?? null;
         $dto->model = $responseArray['model'] ?? null;
         $dto->assistant_content = $responseArray['choices'][0]['message']['content'] ?? null;
-        $dto->_extractThinking();
         $dto->finish_reason = $responseArray['choices'][0]['finish_reason'] ?? null;
         if(isset($responseArray['usage'])){
             $dto->inputTokens = $responseArray['usage']['prompt_tokens'] ?? null;
@@ -84,6 +83,7 @@ class PerplexityTransformer
         if($dto->citations && is_array($dto->citations)) {
             $dto->assistant_content = self::replaceFootnotesWithLinks($dto->assistant_content, $dto->citations);
         }
+        $dto->_extractThinking();
         return $dto;
     }
 
