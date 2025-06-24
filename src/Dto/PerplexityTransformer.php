@@ -96,7 +96,7 @@ class PerplexityTransformer
             $linkIndex = $footnoteNumber - 1;   // Link index
             if (isset($links[$linkIndex])) {
                 // Markdown
-                return '[' . $footnoteNumber . '](' . $links[$linkIndex] . ')';
+                return '[>](' . $links[$linkIndex] . ')';
             }
             return $matches[0];
         };

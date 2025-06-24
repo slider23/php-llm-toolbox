@@ -21,8 +21,8 @@ Text without footnotes.
             "https://example.com/footnote2",
         ];
 
-        $expected = "Text with a footnote1 [1](https://example.com/footnote1). 
-Text with a footnote 2[2](https://example.com/footnote2).
+        $expected = "Text with a footnote1 [>](https://example.com/footnote1). 
+Text with a footnote 2[>](https://example.com/footnote2).
 Text without footnotes.
 ";
 
