@@ -81,6 +81,26 @@ class PerplexityTransformer
         }
         $dto->citations = $responseArray['citations'] ?? null;
         $dto->search_results = $responseArray['search_results'] ?? null;
+        if($dto->citations && is_array($dto->citations)) {
+            $dto->assistant_content = self::replaceFootnotesWithLinks($dto->assistant_content, $dto->citations);
+        }
         return $dto;
+    }
+
+    public static function replaceFootnotesWithLinks($text, $links) {
+        // footnote pattern [1], [2], [3] и т.д.
+        $pattern = '/\[(\d+)]/';
+
+        $callback = function($matches) use ($links) {
+            $footnoteNumber = (int)$matches[1]; // Footnote number
+            $linkIndex = $footnoteNumber - 1;   // Link index
+            if (isset($links[$linkIndex])) {
+                // Markdown
+                return '[' . $footnoteNumber . '](' . $links[$linkIndex] . ')';
+            }
+            return $matches[0];
+        };
+
+        return preg_replace_callback($pattern, $callback, $text);
     }
 }
