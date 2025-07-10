@@ -13,8 +13,9 @@ if(!$apiKey) {
             $apiKey = $matches[1];
         }
     }
-
-    echo "Usage: php update_openrouter_models.php <openrouterApiKey> or fill .env file" . PHP_EOL;
+}
+if(!$apiKey) {
+    echo "Usage: php update_openrouter_models.php <openrouterApiKey> or fill .env file: cp .env.example .env && nano .env " . PHP_EOL;
     exit(1);
 }
 
