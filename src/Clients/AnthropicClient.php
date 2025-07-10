@@ -99,7 +99,8 @@ final class AnthropicClient extends LlmVendorClient implements LlmVendorClientIn
         $content = $response;
         curl_close($curl);
 
-        $result = json_decode($content, true);
+        $result = $this->jsonDecode($response);
+        $this->throwIfError($curl, $result);
 
         $dto = LlmResponseDto::fromAnthropicResponse($result);
         if($dto->status == "error") {
