@@ -3,6 +3,7 @@
 namespace Slider23\PhpLlmToolbox\Clients;
 
 use Slider23\PhpLlmToolbox\Dto\LlmResponseDto;
+use Slider23\PhpLlmToolbox\Dto\AnthropicResponseMapper;
 use Slider23\PhpLlmToolbox\Exceptions\LlmVendorException;
 use Slider23\PhpLlmToolbox\Helper;
 
@@ -60,6 +61,9 @@ final class AnthropicClient extends LlmVendorClient implements LlmVendorClientIn
                         'text' => $systemArray,
                     ];
                 }
+                if(isset($systemArray['type'])) {
+                    $systemArray = [$systemArray]; // Anthropic expects system message as an array of content - not {'type': 'text', 'text': '...'} but [{'type': 'text', 'text': '...'}]
+                }
             }else{
                 $filteredMessages[] = $message;
             }
@@ -80,6 +84,7 @@ final class AnthropicClient extends LlmVendorClient implements LlmVendorClientIn
         }
 
         $curl = curl_init();
+//        var_dump(json_encode($body, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
         curl_setopt_array($curl, [
             CURLOPT_URL => 'https://api.anthropic.com/v1/messages',
             CURLOPT_RETURNTRANSFER => true,
@@ -96,13 +101,12 @@ final class AnthropicClient extends LlmVendorClient implements LlmVendorClientIn
             curl_setopt($curl, CURLOPT_VERBOSE, true);
         }
         $response = curl_exec($curl);
-        $content = $response;
         curl_close($curl);
 
         $result = $this->jsonDecode($response);
         $this->throwIfError($curl, $result);
 
-        $dto = LlmResponseDto::fromAnthropicResponse($result);
+        $dto = AnthropicResponseMapper::makeDto($result);
         if($dto->status == "error") {
             throw new LlmVendorException("Anthropic error: ".$dto->errorMessage);
         }
@@ -245,21 +249,30 @@ final class AnthropicClient extends LlmVendorClient implements LlmVendorClientIn
                 'content' => $text,
             ]),
         ];
-        $guzzle = new \GuzzleHttp\Client;
-        $response = $guzzle->post('https://api.anthropic.com/v1/messages/count_tokens', [
-            'headers' => [
-                'x-api-key' => $this->apiKey,
-                'anthropic-version' => $this->apiVersion,
-                'content-type' => 'application/json',
+        $curl = curl_init();
+        curl_setopt_array($curl, [
+            CURLOPT_URL => 'https://api.anthropic.com/v1/messages/count_tokens',
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_POST => true,
+            CURLOPT_HTTPHEADER => [
+                'x-api-key: ' . $this->apiKey,
+                'anthropic-version: ' . $this->apiVersion,
+                'content-type: application/json'
             ],
-            'debug' => $this->debug,
-            'timeout' => $this->timeout,
-            'json' => $body,
+            CURLOPT_POSTFIELDS => json_encode($body),
+            CURLOPT_TIMEOUT => $this->timeout
         ]);
-        $output = $response->getBody()->getContents();
-        $result = json_decode($output, true);
-        if ($response and is_null($result)) {
-            throw new \Exception('Json decode error: ' . json_last_error_msg() . " | json: $output");
+
+        if ($this->debug) {
+            curl_setopt($curl, CURLOPT_VERBOSE, true);
+        }
+
+        $response = curl_exec($curl);
+        curl_close($curl);
+
+        $result = json_decode($response, true);
+        if ($response && is_null($result)) {
+            throw new \Exception('Json decode error: ' . json_last_error_msg() . " | json: $response");
         }
 
         return $result['input_tokens'] ?? null;

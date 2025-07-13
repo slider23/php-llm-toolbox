@@ -33,7 +33,21 @@ final class DeepseekClient extends LlmVendorClient implements LlmVendorClientInt
 
     public function request(array $messages): LlmResponseDto
     {
+        $body = [
+            'messages' => $this->normalizeMessagesArray($messages),
+            'model' => $this->model,
+            'max_tokens' => $this->max_tokens,
+            'temperature' => $this->temperature,
+            'top_p' => $this->top_p,
+            'frequency_penalty' => $this->frequency_penalty,
+            'presence_penalty' => $this->presence_penalty,
+            'response_format' => [
+                'type' => $this->response_format,
+            ],
+            'stop' => $this->stop,
+        ];
         $curl = curl_init();
+        var_dump(json_encode($body, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
         curl_setopt_array($curl, [
             CURLOPT_URL => 'https://api.deepseek.com/chat/completions',
             CURLOPT_RETURNTRANSFER => true,
@@ -43,19 +57,7 @@ final class DeepseekClient extends LlmVendorClient implements LlmVendorClientInt
             CURLOPT_FOLLOWLOCATION => true,
             CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
             CURLOPT_CUSTOMREQUEST => 'POST',
-            CURLOPT_POSTFIELDS => json_encode([
-                'messages' => $this->normalizeMessagesArray($messages),
-                'model' => $this->model,
-                'max_tokens' => $this->max_tokens,
-                'temperature' => $this->temperature,
-                'top_p' => $this->top_p,
-                'frequency_penalty' => $this->frequency_penalty,
-                'presence_penalty' => $this->presence_penalty,
-                'response_format' => [
-                    'type' => $this->response_format,
-                ],
-                'stop' => $this->stop,
-            ]),
+            CURLOPT_POSTFIELDS => json_encode($body),
             CURLOPT_HTTPHEADER => [
                 'Content-Type: application/json',
                 'Accept: application/json',
