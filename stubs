@@ -1,0 +1,53 @@
+{
+    "id": "3f0a6e45-ff4f-4467-9187-f0d5fd3823f2",
+    "model": "deepseek-chat",
+    "vendor": "deepseek",
+    "assistant_content": "The capital of France is **Paris**.",
+    "assistant_reasoning_content": null,
+    "finish_reason": null,
+    "inputTokens": 15,
+    "outputTokens": 8,
+    "cacheCreationInputTokens": 15,
+    "cacheReadInputTokens": 0,
+    "thinkTokens": null,
+    "citationTokens": null,
+    "totalTokens": 23,
+    "cost": 1.69e-5,
+    "perplexitySearchContextSize": null,
+    "perplexityCitationTokens": null,
+    "perplexityNumSearchQueries": null,
+    "httpStatusCode": null,
+    "status": "success",
+    "error": false,
+    "errorMessage": null,
+    "citations": [],
+    "search_results": [],
+    "rawResponse": {
+        "id": "3f0a6e45-ff4f-4467-9187-f0d5fd3823f2",
+        "object": "chat.completion",
+        "created": 1752415462,
+        "model": "deepseek-chat",
+        "choices": [
+            {
+                "index": 0,
+                "message": {
+                    "role": "assistant",
+                    "content": "The capital of France is **Paris**."
+                },
+                "logprobs": null,
+                "finish_reason": "stop"
+            }
+        ],
+        "usage": {
+            "prompt_tokens": 15,
+            "completion_tokens": 8,
+            "total_tokens": 23,
+            "prompt_tokens_details": {
+                "cached_tokens": 0
+            },
+            "prompt_cache_hit_tokens": 0,
+            "prompt_cache_miss_tokens": 15
+        },
+        "system_fingerprint": "fp_8802369eaa_prod0623_fp8_kvcache"
+    }
+}

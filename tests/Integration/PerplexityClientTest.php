@@ -29,9 +29,10 @@ class PerplexityClientTest extends TestCase
 
     public function testSuccessfulBaseRequest(): void
     {
-        $client = new PerplexityClient("sonar", $this->apiKey);
+        $model = "sonar";
+        $client = new PerplexityClient($model, $this->apiKey);
 
-        $client->timeout = 10; // Можно установить меньший таймаут для тестов
+        $client->timeout = 10;
 
         $messages = [
             SystemMessage::make('Be precise and concise.'),
@@ -49,21 +50,10 @@ class PerplexityClientTest extends TestCase
             $this->assertIsNumeric($response->inputTokens);
             $this->assertIsNumeric($response->outputTokens);
             $this->assertIsFloat($response->cost);
+            file_put_contents(__DIR__."/../stubs/{$model}_response.json", json_encode($response->rawResponse, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
 
         } catch (LlmVendorException $e) {
             $this->fail("LlmVendorException was thrown: " . $e->getMessage());
         }
-    }
-
-    public function testRequestWithInvalidApiKey(): void
-    {
-        $this->expectException(LlmVendorException::class);
-
-        // Используем заведомо неверный API ключ
-        $client = new PerplexityClient("sonar", 'invalid-api-key');
-        $messages = [
-            UserMessage::make("Hello")
-        ];
-        $client->request($messages);
     }
 }

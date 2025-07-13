@@ -28,7 +28,8 @@ class DeepseekClientTest extends TestCase
 
     public function testSuccessfulBaseRequest(): void
     {
-        $client = new DeepseekClient("deepseek-chat", $this->apiKey);
+        $model = "deepseek-chat"; // Используем модель deepseek-chat
+        $client = new DeepseekClient($model, $this->apiKey);
 
         $client->timeout = 10; // Можно установить меньший таймаут для тестов
 
@@ -51,6 +52,7 @@ class DeepseekClientTest extends TestCase
             $this->assertIsFloat($response->cost);
             $this->assertGreaterThan(0, $response->cost, "Cost should be greater than 0.");
 
+            file_put_contents(__DIR__."/../stubs/{$model}_response.json", json_encode($response->rawResponse, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
         } catch (LlmVendorException $e) {
             $this->fail("LlmVendorException was thrown: " . $e->getMessage());
         }

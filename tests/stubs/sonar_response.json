@@ -1,0 +1,65 @@
+{
+    "id": "4db79576-99f1-432d-a618-2f0ba9d5b872",
+    "model": "sonar",
+    "created": 1752416930,
+    "usage": {
+        "prompt_tokens": 12,
+        "completion_tokens": 235,
+        "total_tokens": 247,
+        "search_context_size": "low"
+    },
+    "citations": [
+        "https:\/\/home.adelphi.edu\/~ca19535\/page%204.html",
+        "https:\/\/en.wikipedia.org\/wiki\/Paris",
+        "https:\/\/en.wikipedia.org\/wiki\/List_of_capitals_of_France",
+        "https:\/\/www.britannica.com\/place\/Paris",
+        "https:\/\/www.coe.int\/en\/web\/interculturalcities\/paris"
+    ],
+    "search_results": [
+        {
+            "title": "Paris facts: the capital of France in history",
+            "url": "https:\/\/home.adelphi.edu\/~ca19535\/page%204.html",
+            "date": "2000-01-01",
+            "last_updated": "2025-06-16"
+        },
+        {
+            "title": "Paris - Wikipedia",
+            "url": "https:\/\/en.wikipedia.org\/wiki\/Paris",
+            "date": "2001-11-06",
+            "last_updated": "2025-07-08"
+        },
+        {
+            "title": "List of capitals of France - Wikipedia",
+            "url": "https:\/\/en.wikipedia.org\/wiki\/List_of_capitals_of_France",
+            "date": "2003-01-15",
+            "last_updated": "2025-06-27"
+        },
+        {
+            "title": "Paris | Definition, Map, Population, Facts, & History - Britannica",
+            "url": "https:\/\/www.britannica.com\/place\/Paris",
+            "date": "2025-06-25",
+            "last_updated": "2025-06-25"
+        },
+        {
+            "title": "Paris, France - Intercultural City - The Council of Europe",
+            "url": "https:\/\/www.coe.int\/en\/web\/interculturalcities\/paris",
+            "date": "2024-10-15",
+            "last_updated": "2025-06-16"
+        }
+    ],
+    "object": "chat.completion",
+    "choices": [
+        {
+            "index": 0,
+            "finish_reason": "stop",
+            "message": {
+                "role": "assistant",
+                "content": "The **capital of France is Paris**. It is the largest city in the country and serves as the political, cultural, and economic center of France[1][2][3][4][5].\n\nKey details about Paris as the capital of France:\n\n- Paris has been the capital since 1944, after its liberation during World War II, with some interruptions in history such as during the German occupation when Vichy was the capital[1][3].\n- It is located along the Seine River in the north-central part of France, within the Île-de-France region[4][5].\n- The city covers an area of about 105 km² (41 sq mi) and has a population of approximately 2 million people as of 2025, with the metropolitan area housing over 10 million residents[2][4][5].\n- Paris is a global center for finance, diplomacy, commerce, culture, fashion, and gastronomy, often called the \"City of Light\" due to its historical role in arts and sciences[2].\n\nThus, Paris is the historic and current capital of France, central to the nation's identity and functioning."
+            },
+            "delta": {
+                "role": "assistant",
+                "content": ""
+            }
+        }
+    ]
+}
