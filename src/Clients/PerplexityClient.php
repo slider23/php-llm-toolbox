@@ -3,7 +3,7 @@
 namespace Slider23\PhpLlmToolbox\Clients;
 
 use Slider23\PhpLlmToolbox\Dto\LlmResponseDto;
-use Slider23\PhpLlmToolbox\Dto\PerplexityTransformer;
+use Slider23\PhpLlmToolbox\Dto\PerplexityResponseMapper;
 use Slider23\PhpLlmToolbox\Exceptions\LlmVendorException;
 
 class PerplexityClient extends LlmVendorClient implements LlmVendorClientInterface
@@ -85,7 +85,7 @@ class PerplexityClient extends LlmVendorClient implements LlmVendorClientInterfa
         $result = $this->jsonDecode($response);
         $this->throwIfError($curl, $result);
 
-        $dto = PerplexityTransformer::makeDto($result);
+        $dto = PerplexityResponseMapper::makeDto($result);
         if($dto->status == "error") {
             throw new LlmVendorException("Perplexity error: ".$dto->errorMessage);
         }

@@ -55,7 +55,7 @@ abstract class LlmVendorClient
             throw new LlmRequestException("CURL Error: empty answer from vendor");
         }
         if (isset($response['error'])) {
-            throw new LlmRequestException($response['error']['message'] ?? 'Unknown error from vendor', $response['error']['code'] ?? 0);
+            throw new LlmRequestException($response['error']['message'] ?? 'Unknown error from vendor', (int)($response['error']['code'] ?? 0));
         }
 
     }

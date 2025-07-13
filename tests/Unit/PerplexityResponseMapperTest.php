@@ -3,9 +3,9 @@
 namespace Slider23\PhpLlmToolbox\Tests\Unit;
 
 use PHPUnit\Framework\TestCase;
-use Slider23\PhpLlmToolbox\Dto\PerplexityTransformer;
+use Slider23\PhpLlmToolbox\Dto\PerplexityResponseMapper;
 
-class PerplexityTransformerTest extends TestCase
+class PerplexityResponseMapperTest extends TestCase
 {
     /**
      * A basic test example.
@@ -26,7 +26,7 @@ Text with a footnote 2[>](https://example.com/footnote2).
 Text without footnotes.
 ";
 
-        $result = PerplexityTransformer::replaceFootnotesWithLinks($text, $links);
+        $result = PerplexityResponseMapper::replaceFootnotesWithLinks($text, $links);
 
         $this->assertEquals($expected, $result);
 

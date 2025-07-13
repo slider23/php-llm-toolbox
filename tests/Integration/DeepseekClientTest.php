@@ -3,33 +3,32 @@
 namespace Slider23\PhpLlmToolbox\Tests\Integration;
 
 use PHPUnit\Framework\TestCase;
-use Slider23\PhpLlmToolbox\Clients\PerplexityClient;
+use Slider23\PhpLlmToolbox\Clients\DeepseekClient;
 use Slider23\PhpLlmToolbox\Dto\LlmResponseDto;
 use Slider23\PhpLlmToolbox\Exceptions\LlmVendorException;
 use Slider23\PhpLlmToolbox\Messages\SystemMessage;
 use Slider23\PhpLlmToolbox\Messages\UserMessage;
 
-class PerplexityClientTest extends TestCase
+class DeepseekClientTest extends TestCase
 {
     private ?string $apiKey;
 
     protected function setUp(): void
     {
         parent::setUp();
-
         // Проверяем наличие API ключа в переменных окружения
-        $this->apiKey = $_ENV['PERPLEXITY_API_KEY'] ?? getenv('PERPLEXITY_API_KEY') ?: null;
+        $this->apiKey = getenv('DEEPSEEK_API_KEY') ? $_ENV['DEEPSEEK_API_KEY'] : null;
 
-        if (empty($this->apiKey) || $this->apiKey === 'your-perplexity-api-key-here') {
+        if (empty($this->apiKey) || $this->apiKey === 'your-deepseek-api-key-here') {
             $this->markTestSkipped(
-                'Perplexity API key not configured in environment variables (PERPLEXITY_API_KEY) or contains placeholder value.'
+                'Deepseek API key not configured in environment variables (DEEPSEEK_API_KEY) or contains placeholder value.'
             );
         }
     }
 
     public function testSuccessfulBaseRequest(): void
     {
-        $client = new PerplexityClient("sonar", $this->apiKey);
+        $client = new DeepseekClient("deepseek-chat", $this->apiKey);
 
         $client->timeout = 10; // Можно установить меньший таймаут для тестов
 
@@ -46,24 +45,15 @@ class PerplexityClientTest extends TestCase
             $this->assertNotEmpty($response->assistant_content, "Response content should not be empty.");
             $this->assertStringContainsStringIgnoringCase('Paris', $response->assistant_content, "Response content should mention Paris.");
             $this->assertNotEmpty($response->model, "Response model should not be empty.");
+            $this->assertEquals('deepseek', $response->vendor, "Response vendor should be 'deepseek'.");
             $this->assertIsNumeric($response->inputTokens);
             $this->assertIsNumeric($response->outputTokens);
             $this->assertIsFloat($response->cost);
+            $this->assertGreaterThan(0, $response->cost, "Cost should be greater than 0.");
 
         } catch (LlmVendorException $e) {
             $this->fail("LlmVendorException was thrown: " . $e->getMessage());
         }
     }
 
-    public function testRequestWithInvalidApiKey(): void
-    {
-        $this->expectException(LlmVendorException::class);
-
-        // Используем заведомо неверный API ключ
-        $client = new PerplexityClient("sonar", 'invalid-api-key');
-        $messages = [
-            UserMessage::make("Hello")
-        ];
-        $client->request($messages);
-    }
 }

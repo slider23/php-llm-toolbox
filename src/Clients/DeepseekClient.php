@@ -2,6 +2,7 @@
 
 namespace Slider23\PhpLlmToolbox\Clients;
 
+use Slider23\PhpLlmToolbox\Dto\DeepseekResponseMapper;
 use Slider23\PhpLlmToolbox\Dto\LlmResponseDto;
 use Slider23\PhpLlmToolbox\Exceptions\LlmVendorException;
 
@@ -64,11 +65,10 @@ final class DeepseekClient extends LlmVendorClient implements LlmVendorClientInt
         $response = curl_exec($curl);
         curl_close($curl);
 
-        trap($response);
         $result = $this->jsonDecode($response);
         $this->throwIfError($curl, $result);
 
-        $dto = LlmResponseDto::fromDeepseekResponse($result);
+        $dto = DeepseekResponseMapper::makeDto($result);
         if($dto->status == "error") {
             throw new LlmVendorException("Deepseek error: ".$dto->errorMessage);
         }

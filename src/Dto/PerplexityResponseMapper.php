@@ -4,7 +4,7 @@ namespace Slider23\PhpLlmToolbox\Dto;
 
 use Slider23\PhpLlmToolbox\Exceptions\LlmVendorException;
 
-class PerplexityTransformer
+class PerplexityResponseMapper
 {
     public static array $pricesByModel = [
         "sonar" => [
