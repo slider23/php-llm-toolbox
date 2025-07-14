@@ -102,4 +102,31 @@ class OpenrouterClient extends LlmVendorClient implements LlmVendorClientInterfa
         }
         return $dto;
     }
+
+    public function fetchCost(string $id): ?float
+    {
+        $curl = curl_init();
+        curl_setopt_array($curl, [
+            CURLOPT_URL => 'https://openrouter.ai/api/v1/generation?id='. $id,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_HTTPHEADER => [
+                'Authorization: Bearer ' . $this->apiKey,
+                'HTTP-Referer: ' . $this->http_referer,
+                'content-type: application/json'
+            ],
+            CURLOPT_TIMEOUT => $this->timeout
+
+        ]);
+        if($this->debug) {
+            curl_setopt($curl, CURLOPT_VERBOSE, true);
+        }
+        $response = curl_exec($curl);
+        curl_close($curl);
+
+        $result = $this->jsonDecode($response);
+        if(isset($result['error'])) {
+            return null;
+        }
+        return $result['data']['total_cost'] ?? null;
+    }
 }

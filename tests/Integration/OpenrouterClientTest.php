@@ -52,6 +52,10 @@ class OpenrouterClientTest extends TestCase
         } catch (LlmVendorException $e) {
             $this->fail("LlmVendorException was thrown: " . $e->getMessage());
         }
+
+        sleep(3);
+        $cost = $client->fetchCost($response->id);
+        $this->assertIsFloat($cost, "Cost should be a float value.");
     }
 
     public function testSuccessfulRequestWithProviders(): void

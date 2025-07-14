@@ -84,7 +84,6 @@ final class AnthropicClient extends LlmVendorClient implements LlmVendorClientIn
         }
 
         $curl = curl_init();
-//        var_dump(json_encode($body, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
         curl_setopt_array($curl, [
             CURLOPT_URL => 'https://api.anthropic.com/v1/messages',
             CURLOPT_RETURNTRANSFER => true,
