@@ -13,5 +13,8 @@ ARGS = $(filter-out $@,$(MAKECMDGOALS))
 update: ## Update openrouter models
 	php ./update_openrouter_models.php
 
-test-integration: ## Run tests
+test: ## Run all tests
+	./vendor/bin/phpunit
+
+test-integration: ## Run integrations tests
 	./vendor/bin/phpunit tests/Integration/ --verbose

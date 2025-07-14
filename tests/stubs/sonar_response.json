@@ -1,11 +1,11 @@
 {
-    "id": "4db79576-99f1-432d-a618-2f0ba9d5b872",
+    "id": "56a0af21-dee6-4c40-a59e-65891043abdb",
     "model": "sonar",
-    "created": 1752416930,
+    "created": 1752481667,
     "usage": {
         "prompt_tokens": 12,
-        "completion_tokens": 235,
-        "total_tokens": 247,
+        "completion_tokens": 176,
+        "total_tokens": 188,
         "search_context_size": "low"
     },
     "citations": [
@@ -35,7 +35,7 @@
             "last_updated": "2025-06-27"
         },
         {
-            "title": "Paris | Definition, Map, Population, Facts, & History - Britannica",
+            "title": "Paris | Definition, Map, Population, Facts, & History | Britannica",
             "url": "https:\/\/www.britannica.com\/place\/Paris",
             "date": "2025-06-25",
             "last_updated": "2025-06-25"
@@ -54,7 +54,7 @@
             "finish_reason": "stop",
             "message": {
                 "role": "assistant",
-                "content": "The **capital of France is Paris**. It is the largest city in the country and serves as the political, cultural, and economic center of France[1][2][3][4][5].\n\nKey details about Paris as the capital of France:\n\n- Paris has been the capital since 1944, after its liberation during World War II, with some interruptions in history such as during the German occupation when Vichy was the capital[1][3].\n- It is located along the Seine River in the north-central part of France, within the Île-de-France region[4][5].\n- The city covers an area of about 105 km² (41 sq mi) and has a population of approximately 2 million people as of 2025, with the metropolitan area housing over 10 million residents[2][4][5].\n- Paris is a global center for finance, diplomacy, commerce, culture, fashion, and gastronomy, often called the \"City of Light\" due to its historical role in arts and sciences[2].\n\nThus, Paris is the historic and current capital of France, central to the nation's identity and functioning."
+                "content": "The **capital of France is Paris**. It is the largest city in the country and serves as the political, cultural, and economic center of France[1][2][4][5]. Paris is located along the Seine River in the north-central part of France and is the core of the Île-de-France region. It has a population of over 2 million within the city proper and more than 12 million in the metropolitan area[1][2][4].\n\nHistorically, Paris became the capital of France in 508 under King Clovis and has remained so with only a brief interruption during World War II when the capital was temporarily moved to Vichy[1][3]. Today, Paris is renowned worldwide for its rich history, architecture, fashion, gastronomy, and as a major global center for finance and culture[1][2][4]."
             },
             "delta": {
                 "role": "assistant",

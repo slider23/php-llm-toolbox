@@ -47,7 +47,6 @@ final class DeepseekClient extends LlmVendorClient implements LlmVendorClientInt
             'stop' => $this->stop,
         ];
         $curl = curl_init();
-        var_dump(json_encode($body, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
         curl_setopt_array($curl, [
             CURLOPT_URL => 'https://api.deepseek.com/chat/completions',
             CURLOPT_RETURNTRANSFER => true,
