@@ -61,8 +61,8 @@ class AnthropicResponseMapper
         $dto->rawResponse = $responseArray;
         $dto->id = $responseArray['id'] ?? null;
         $dto->model = $responseArray['model'] ?? null;
-        $dto->assistant_content = $responseArray['content'][0]['text'] ?? null;
-        $dto->finish_reason = $responseArray['stop_reason'] ?? null;
+        $dto->assistantContent = $responseArray['content'][0]['text'] ?? null;
+        $dto->finishReason = $responseArray['stop_reason'] ?? null;
         
         if(isset($responseArray['usage'])){
             $dto->inputTokens = $responseArray['usage']['input_tokens'] ?? null;

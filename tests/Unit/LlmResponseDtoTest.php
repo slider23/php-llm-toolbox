@@ -13,24 +13,24 @@ class LlmResponseDtoTest extends TestCase
     public function testExtractThinking(): void
     {
         $dto = new LlmResponseDto();
-        $dto->assistant_content = "<thinking>I am 
+        $dto->assistantContent = "<thinking>I am 
 thinking about the 
 next steps.</thinking>
 This is a test response.";
         $dto->_extractThinking();
         $this->assertEquals("
-This is a test response.", $dto->assistant_content);
+This is a test response.", $dto->assistantContent);
     }
 
     public function testExtractThink(): void
     {
         $dto = new LlmResponseDto();
-        $dto->assistant_content = "<think>I am 
+        $dto->assistantContent = "<think>I am 
 thinking about the 
 next steps.</think>
 This is a test response.";
         $dto->_extractThinking();
         $this->assertEquals("
-This is a test response.", $dto->assistant_content);
+This is a test response.", $dto->assistantContent);
     }
 }

@@ -23,8 +23,8 @@ class OpenrouterResponseMapper
         $dto->id = $responseArray['id'] ?? null;
         $dto->model = $responseArray['model'] ?? null;
         if(isset($responseArray['choices'][0])){
-            $dto->assistant_content = $responseArray['choices'][0]['message']['content'] ?? null;
-            $dto->finish_reason = $responseArray['choices'][0]['finish_reason'] ?? null;
+            $dto->assistantContent = $responseArray['choices'][0]['message']['content'] ?? null;
+            $dto->finishReason = $responseArray['choices'][0]['finish_reason'] ?? null;
         }
         if(isset($responseArray['usage'])){
             $dto->inputTokens = $responseArray['usage']['prompt_tokens'] ?? null;

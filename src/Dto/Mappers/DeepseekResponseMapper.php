@@ -29,9 +29,9 @@ class DeepseekResponseMapper
         $dto->rawResponse = $responseArray;
         $dto->id = $responseArray['id'] ?? null;
         $dto->model = $responseArray['model'] ?? null;
-        $dto->assistant_content = $responseArray['choices'][0]['message']['content'] ?? null;
-        $dto->assistant_reasoning_content = $responseArray['choices'][0]['message']['reasoning_content'] ?? null;
-        $dto->finish_reason = $responseArray['finish_reason'] ?? null;
+        $dto->assistantContent = $responseArray['choices'][0]['message']['content'] ?? null;
+        $dto->assistantThinkingContent = $responseArray['choices'][0]['message']['reasoning_content'] ?? null;
+        $dto->finishReason = $responseArray['finish_reason'] ?? null;
         if(isset($responseArray['usage'])){
             $dto->inputTokens = $responseArray['usage']['prompt_tokens'];
             $dto->cacheCreationInputTokens = $responseArray['usage']['prompt_cache_miss_tokens'] ?? 0;

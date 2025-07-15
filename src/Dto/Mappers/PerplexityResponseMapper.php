@@ -58,8 +58,8 @@ class PerplexityResponseMapper
         $dto->rawResponse = $responseArray;
         $dto->id = $responseArray['id'] ?? null;
         $dto->model = $responseArray['model'] ?? null;
-        $dto->assistant_content = $responseArray['choices'][0]['message']['content'] ?? null;
-        $dto->finish_reason = $responseArray['choices'][0]['finish_reason'] ?? null;
+        $dto->assistantContent = $responseArray['choices'][0]['message']['content'] ?? null;
+        $dto->finishReason = $responseArray['choices'][0]['finish_reason'] ?? null;
         if(isset($responseArray['usage'])){
             $dto->inputTokens = $responseArray['usage']['prompt_tokens'] ?? null;
             $dto->outputTokens = $responseArray['usage']['completion_tokens'] ?? null;
@@ -81,7 +81,7 @@ class PerplexityResponseMapper
         $dto->citations = $responseArray['citations'] ?? null;
         $dto->search_results = $responseArray['search_results'] ?? null;
         if($dto->citations && is_array($dto->citations)) {
-            $dto->assistant_content = self::replaceFootnotesWithLinks($dto->assistant_content, $dto->citations);
+            $dto->assistantContent = self::replaceFootnotesWithLinks($dto->assistantContent, $dto->citations);
         }
         $dto->_extractThinking();
         return $dto;

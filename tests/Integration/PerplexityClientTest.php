@@ -44,8 +44,8 @@ class PerplexityClientTest extends TestCase
 
             $this->assertInstanceOf(LlmResponseDto::class, $response);
             $this->assertNotEquals('error', $response->status, "Response status should not be 'error'. Error message: " . $response->errorMessage);
-            $this->assertNotEmpty($response->assistant_content, "Response content should not be empty.");
-            $this->assertStringContainsStringIgnoringCase('Paris', $response->assistant_content, "Response content should mention Paris.");
+            $this->assertNotEmpty($response->assistantContent, "Response content should not be empty.");
+            $this->assertStringContainsStringIgnoringCase('Paris', $response->assistantContent, "Response content should mention Paris.");
             $this->assertNotEmpty($response->model, "Response model should not be empty.");
             $this->assertIsNumeric($response->inputTokens);
             $this->assertIsNumeric($response->outputTokens);

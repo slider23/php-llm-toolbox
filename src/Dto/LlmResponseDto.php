@@ -9,9 +9,9 @@ class LlmResponseDto
     public ?string $id = null;
     public ?string $model = null;
     public ?string $vendor = null;
-    public ?string $assistant_content = null;
-    public ?string $assistant_reasoning_content = null;
-    public ?string $finish_reason = null;
+    public ?string $assistantContent = null;
+    public ?string $assistantThinkingContent = null;
+    public ?string $finishReason = null;
 
     public ?int $inputTokens = null;
     public ?int $outputTokens = null;
@@ -44,15 +44,15 @@ class LlmResponseDto
 
     public function _extractThinking(): void
     {
-        if(strpos($this->assistant_content, "<thinking>") !== false){
-            preg_match("/<thinking>(.*?)<\/thinking>/s", $this->assistant_content, $matches);
-            $this->assistant_reasoning_content = $matches[1] ?? null;
-            $this->assistant_content = preg_replace("/<thinking>.*?<\/thinking>/s", "", $this->assistant_content);
+        if(strpos($this->assistantContent, "<thinking>") !== false){
+            preg_match("/<thinking>(.*?)<\/thinking>/s", $this->assistantContent, $matches);
+            $this->assistantThinkingContent = $matches[1] ?? null;
+            $this->assistantContent = preg_replace("/<thinking>.*?<\/thinking>/s", "", $this->assistantContent);
         }
-        if(strpos($this->assistant_content, "<think>") !== false){
-            preg_match("/<think>(.*?)<\/think>/s", $this->assistant_content, $matches);
-            $this->assistant_reasoning_content = $matches[1] ?? null;
-            $this->assistant_content = preg_replace("/<think>.*?<\/think>/s", "", $this->assistant_content);
+        if(strpos($this->assistantContent, "<think>") !== false){
+            preg_match("/<think>(.*?)<\/think>/s", $this->assistantContent, $matches);
+            $this->assistantThinkingContent = $matches[1] ?? null;
+            $this->assistantContent = preg_replace("/<think>.*?<\/think>/s", "", $this->assistantContent);
         }
     }
 }
