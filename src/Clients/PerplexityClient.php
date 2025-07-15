@@ -35,9 +35,8 @@ class PerplexityClient extends LlmVendorClient implements LlmVendorClientInterfa
         $this->apiKey = $apiKey;
     }
 
-    public function request(array $messages): LlmResponseDto
+    public function setBody(array $messages): void
     {
-        $curl = curl_init();
         $body = [
             'messages' => $this->normalizeMessagesArray($messages),
             'model' => $this->model,
@@ -63,6 +62,13 @@ class PerplexityClient extends LlmVendorClient implements LlmVendorClientInterfa
         if($this->web_search_options) {
             $body['web_search_options'] = $this->web_search_options;
         }
+        $this->body = $body;
+    }
+
+    public function request(array $messages = null): LlmResponseDto
+    {
+        if($messages) $this->setBody($messages);
+        $curl = curl_init();
         curl_setopt_array($curl, [
             CURLOPT_URL => 'https://api.perplexity.ai/chat/completions',
             CURLOPT_RETURNTRANSFER => true,
@@ -72,7 +78,7 @@ class PerplexityClient extends LlmVendorClient implements LlmVendorClientInterfa
             CURLOPT_FOLLOWLOCATION => true,
             CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
             CURLOPT_CUSTOMREQUEST => 'POST',
-            CURLOPT_POSTFIELDS => json_encode($body),
+            CURLOPT_POSTFIELDS => json_encode($this->body),
             CURLOPT_HTTPHEADER => [
                 'Content-Type: application/json',
                 'Accept: application/json',

@@ -9,21 +9,22 @@ use Slider23\PhpLlmToolbox\Exceptions\WrongJsonException;
 
 abstract class LlmVendorClient
 {
-    private bool $isDebug = false;
+    public array $body = [];
+    public bool $debug = false;
 
     public function enableDebug()
     {
-        $this->isDebug = true;
+        $this->debug = true;
     }
 
     public function disableDebug()
     {
-        $this->isDebug = false;
+        $this->debug = false;
     }
 
     public function debug(array $data): void
     {
-        if($this->isDebug) {
+        if($this->debug) {
             if(function_exists("trap")) trap($data);
         }
     }

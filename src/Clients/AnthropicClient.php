@@ -31,23 +31,7 @@ final class AnthropicClient extends LlmVendorClient implements LlmVendorClientIn
         $this->apiVersion = $apiVersion;
     }
 
-    private function _prepareMessagesArray(array $messages)
-    {
-        $preparedMessages = [];
-        if (isset($messages['role']) && isset($messages['content'])) {
-            // вариант, когда передан один элемент
-            $preparedMessages[] = $messages;
-        } else {
-            // вариант, когда передан массив истории переписки или few-shot
-            foreach ($messages as $message) {
-                $preparedMessages[] = $message;
-            }
-        }
-
-        return $preparedMessages;
-    }
-
-    public function request(array $messages): LlmResponseDto
+    public function setBody(array $messages): void
     {
         $systemArray = [];
         $filteredMessages = [];
@@ -69,7 +53,7 @@ final class AnthropicClient extends LlmVendorClient implements LlmVendorClientIn
             }
         }
 
-        $body = [
+        $this->body = [
             'model' => $this->model,
             'system' => $systemArray,
             'messages' => $this->_prepareMessagesArray($filteredMessages),
@@ -77,11 +61,32 @@ final class AnthropicClient extends LlmVendorClient implements LlmVendorClientIn
             'temperature' => $this->temperature,
         ];
         if($this->thinking > 0) {
-            $body['thinking'] = [
+            $this->body['thinking'] = [
                 "type" => "enabled",
                 "budget_tokens" => $this->thinking
             ];
         }
+    }
+
+    private function _prepareMessagesArray(array $messages)
+    {
+        $preparedMessages = [];
+        if (isset($messages['role']) && isset($messages['content'])) {
+            // вариант, когда передан один элемент
+            $preparedMessages[] = $messages;
+        } else {
+            // вариант, когда передан массив истории переписки или few-shot
+            foreach ($messages as $message) {
+                $preparedMessages[] = $message;
+            }
+        }
+
+        return $preparedMessages;
+    }
+
+    public function request(array $messages = null): LlmResponseDto
+    {
+        if($messages) $this->setBody($messages);
 
         $curl = curl_init();
         curl_setopt_array($curl, [
@@ -93,7 +98,7 @@ final class AnthropicClient extends LlmVendorClient implements LlmVendorClientIn
                 'anthropic-version: ' . $this->apiVersion,
                 'content-type: application/json'
             ],
-            CURLOPT_POSTFIELDS => json_encode($body),
+            CURLOPT_POSTFIELDS => json_encode($this->body),
             CURLOPT_TIMEOUT => $this->timeout
         ]);
         if ($this->debug) {

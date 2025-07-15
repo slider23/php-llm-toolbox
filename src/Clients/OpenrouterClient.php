@@ -13,7 +13,6 @@ class OpenrouterClient extends LlmVendorClient implements LlmVendorClientInterfa
     public string $apiKey;
 
     public array $providers;
-    public $debug = false;
 
     public $timeout = 60;
     // https://openrouter.ai/docs/api-reference/parameters
@@ -49,8 +48,7 @@ class OpenrouterClient extends LlmVendorClient implements LlmVendorClientInterfa
         $this->providers = $providers;
     }
 
-
-    public function request(array $messages): LlmResponseDto
+    public function setBody(array $messages): void
     {
         $body = [
             'model' => $this->model,
@@ -75,7 +73,13 @@ class OpenrouterClient extends LlmVendorClient implements LlmVendorClientInterfa
         if(!is_null($this->stop)) $body['stop'] = $this->stop;
         if(!is_null($this->tools)) $body['tools'] = $this->tools;
         if(!is_null($this->tool_choice)) $body['tool_choice'] = $this->tool_choice;
+        $this->body = $body;
+    }
 
+
+    public function request(array $messages = null): LlmResponseDto
+    {
+        if($messages) $this->setBody($messages);
         $curl = curl_init();
         curl_setopt_array($curl, [
             CURLOPT_URL => 'https://openrouter.ai/api/v1/chat/completions',
@@ -87,7 +91,7 @@ class OpenrouterClient extends LlmVendorClient implements LlmVendorClientInterfa
                 'X-Title: ' . $this->x_title,
                 'content-type: application/json'
             ],
-            CURLOPT_POSTFIELDS => json_encode($body),
+            CURLOPT_POSTFIELDS => json_encode($this->body),
             CURLOPT_TIMEOUT => $this->timeout
         ]);
         $response = curl_exec($curl);

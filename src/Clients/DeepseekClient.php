@@ -22,7 +22,7 @@ final class DeepseekClient extends LlmVendorClient implements LlmVendorClientInt
     public string $response_format = 'text'; // text , json_object
     public float $top_p = 1;
     public ?string $stop = null;
-    private bool $isDebug = false;
+    public bool $debug = false;
 
 
     public function __construct(string $model, string $apiKey)
@@ -31,9 +31,9 @@ final class DeepseekClient extends LlmVendorClient implements LlmVendorClientInt
         $this->apiKey = $apiKey;
     }
 
-    public function request(array $messages): LlmResponseDto
+    public function setBody(array $messages): void
     {
-        $body = [
+        $this->body = [
             'messages' => $this->normalizeMessagesArray($messages),
             'model' => $this->model,
             'max_tokens' => $this->max_tokens,
@@ -46,6 +46,11 @@ final class DeepseekClient extends LlmVendorClient implements LlmVendorClientInt
             ],
             'stop' => $this->stop,
         ];
+    }
+
+    public function request(array $messages = null): LlmResponseDto
+    {
+        if($messages) $this->setBody($messages);
         $curl = curl_init();
         curl_setopt_array($curl, [
             CURLOPT_URL => 'https://api.deepseek.com/chat/completions',
@@ -56,7 +61,7 @@ final class DeepseekClient extends LlmVendorClient implements LlmVendorClientInt
             CURLOPT_FOLLOWLOCATION => true,
             CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
             CURLOPT_CUSTOMREQUEST => 'POST',
-            CURLOPT_POSTFIELDS => json_encode($body),
+            CURLOPT_POSTFIELDS => json_encode($this->body),
             CURLOPT_HTTPHEADER => [
                 'Content-Type: application/json',
                 'Accept: application/json',

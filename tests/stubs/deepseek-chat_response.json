@@ -1,14 +1,14 @@
 {
-    "id": "564ef95f-8530-4e17-891e-ce9530cb9353",
+    "id": "c0aa7537-841e-4bb1-968c-91ec2de71bb1",
     "object": "chat.completion",
-    "created": 1752514817,
+    "created": 1752585260,
     "model": "deepseek-chat",
     "choices": [
         {
             "index": 0,
             "message": {
                 "role": "assistant",
-                "content": "The capital of France is **Paris**."
+                "content": "The capital of France is Paris."
             },
             "logprobs": null,
             "finish_reason": "stop"
@@ -16,8 +16,8 @@
     ],
     "usage": {
         "prompt_tokens": 15,
-        "completion_tokens": 8,
-        "total_tokens": 23,
+        "completion_tokens": 7,
+        "total_tokens": 22,
         "prompt_tokens_details": {
             "cached_tokens": 0
         },

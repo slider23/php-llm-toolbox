@@ -39,7 +39,8 @@ class AnthropicClientTest extends TestCase
         ];
 
         try {
-            $response = $client->request($messages);
+            $client->setBody($messages);
+            $response = $client->request();
 
             $this->assertInstanceOf(LlmResponseDto::class, $response);
             $this->assertNotEquals('error', $response->status, "Response status should not be 'error'. Error message: " . $response->errorMessage);
