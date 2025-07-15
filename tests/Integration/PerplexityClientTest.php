@@ -50,7 +50,7 @@ class PerplexityClientTest extends TestCase
             $this->assertIsNumeric($response->inputTokens);
             $this->assertIsNumeric($response->outputTokens);
             $this->assertIsFloat($response->cost);
-            file_put_contents(__DIR__."/../stubs/{$model}_response.json", json_encode($response->rawResponse, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+//            file_put_contents(__DIR__."/../stubs/{$model}_response.json", json_encode($response->rawResponse, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
 
         } catch (LlmVendorException $e) {
             $this->fail("LlmVendorException was thrown: " . $e->getMessage());

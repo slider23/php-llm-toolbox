@@ -3,7 +3,7 @@
 namespace Slider23\PhpLlmToolbox\Clients;
 
 use Slider23\PhpLlmToolbox\Dto\LlmResponseDto;
-use Slider23\PhpLlmToolbox\Dto\AnthropicResponseMapper;
+use Slider23\PhpLlmToolbox\Dto\Mappers\AnthropicResponseMapper;
 use Slider23\PhpLlmToolbox\Exceptions\LlmVendorException;
 use Slider23\PhpLlmToolbox\Helper;
 

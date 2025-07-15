@@ -1,6 +1,8 @@
 <?php
 
-namespace Slider23\PhpLlmToolbox\Dto;
+namespace Slider23\PhpLlmToolbox\Dto\Mappers;
+
+use Slider23\PhpLlmToolbox\Dto\LlmResponseDto;
 
 class AnthropicResponseMapper
 {

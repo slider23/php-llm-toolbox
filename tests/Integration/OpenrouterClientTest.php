@@ -48,7 +48,7 @@ class OpenrouterClientTest extends TestCase
             $this->assertIsNumeric($response->inputTokens);
             $this->assertIsNumeric($response->outputTokens);
 
-            file_put_contents(__DIR__."/../stubs/openrouter_gpt-4o-mini_response.json", json_encode($response->rawResponse, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+//            file_put_contents(__DIR__."/../stubs/openrouter_gpt-4o-mini_response.json", json_encode($response->rawResponse, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
         } catch (LlmVendorException $e) {
             $this->fail("LlmVendorException was thrown: " . $e->getMessage());
         }

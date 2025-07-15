@@ -3,7 +3,7 @@
 namespace Slider23\PhpLlmToolbox\Tests\Unit;
 
 use PHPUnit\Framework\TestCase;
-use Slider23\PhpLlmToolbox\Dto\PerplexityResponseMapper;
+use Slider23\PhpLlmToolbox\Dto\Mappers\PerplexityResponseMapper;
 
 class PerplexityResponseMapperTest extends TestCase
 {

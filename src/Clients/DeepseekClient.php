@@ -2,8 +2,8 @@
 
 namespace Slider23\PhpLlmToolbox\Clients;
 
-use Slider23\PhpLlmToolbox\Dto\DeepseekResponseMapper;
 use Slider23\PhpLlmToolbox\Dto\LlmResponseDto;
+use Slider23\PhpLlmToolbox\Dto\Mappers\DeepseekResponseMapper;
 use Slider23\PhpLlmToolbox\Exceptions\LlmVendorException;
 
 final class DeepseekClient extends LlmVendorClient implements LlmVendorClientInterface

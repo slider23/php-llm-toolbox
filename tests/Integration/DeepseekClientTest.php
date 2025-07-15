@@ -52,7 +52,7 @@ class DeepseekClientTest extends TestCase
             $this->assertIsFloat($response->cost);
             $this->assertGreaterThan(0, $response->cost, "Cost should be greater than 0.");
 
-            file_put_contents(__DIR__."/../stubs/{$model}_response.json", json_encode($response->rawResponse, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+//            file_put_contents(__DIR__."/../stubs/{$model}_response.json", json_encode($response->rawResponse, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
         } catch (LlmVendorException $e) {
             $this->fail("LlmVendorException was thrown: " . $e->getMessage());
         }

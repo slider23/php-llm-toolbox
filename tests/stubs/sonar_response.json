@@ -1,7 +1,7 @@
 {
-    "id": "55acb125-3789-4752-b455-20b3eedd4380",
+    "id": "4ba114a5-78ec-4855-be7d-3fa44b79fdaf",
     "model": "sonar",
-    "created": 1752585259,
+    "created": 1752585413,
     "usage": {
         "prompt_tokens": 12,
         "completion_tokens": 9,
@@ -23,19 +23,19 @@
             "last_updated": "2025-06-16"
         },
         {
-            "title": "Paris - Wikipedia",
+            "title": "Paris",
             "url": "https:\/\/en.wikipedia.org\/wiki\/Paris",
             "date": "2001-11-06",
             "last_updated": "2025-07-08"
         },
         {
-            "title": "List of capitals of France - Wikipedia",
+            "title": "List of capitals of France",
             "url": "https:\/\/en.wikipedia.org\/wiki\/List_of_capitals_of_France",
             "date": "2003-01-15",
             "last_updated": "2025-06-27"
         },
         {
-            "title": "Paris | Definition, Map, Population, Facts, & History | Britannica",
+            "title": "Paris | Definition, Map, Population, Facts, & History",
             "url": "https:\/\/www.britannica.com\/place\/Paris",
             "date": "2025-06-25",
             "last_updated": "2025-06-25"

@@ -3,7 +3,7 @@
 namespace Slider23\PhpLlmToolbox\Clients;
 
 use Slider23\PhpLlmToolbox\Dto\LlmResponseDto;
-use Slider23\PhpLlmToolbox\Dto\PerplexityResponseMapper;
+use Slider23\PhpLlmToolbox\Dto\Mappers\PerplexityResponseMapper;
 use Slider23\PhpLlmToolbox\Exceptions\LlmVendorException;
 
 class PerplexityClient extends LlmVendorClient implements LlmVendorClientInterface

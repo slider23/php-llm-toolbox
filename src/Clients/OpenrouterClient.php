@@ -2,9 +2,8 @@
 
 namespace Slider23\PhpLlmToolbox\Clients;
 
-use Slider23\PhpLlmToolbox\Clients\LlmVendorClient;
 use Slider23\PhpLlmToolbox\Dto\LlmResponseDto;
-use Slider23\PhpLlmToolbox\Dto\OpenrouterResponseMapper;
+use Slider23\PhpLlmToolbox\Dto\Mappers\OpenrouterResponseMapper;
 use Slider23\PhpLlmToolbox\Exceptions\LlmVendorException;
 
 class OpenrouterClient extends LlmVendorClient implements LlmVendorClientInterface
