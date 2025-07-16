@@ -85,6 +85,9 @@ class OpenrouterClientTest extends TestCase
 //            file_put_contents(__DIR__."/../stubs/{$model}_providers_response.json", json_encode($response->rawResponse, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
         } catch (LlmVendorException $e) {
             $this->fail("LlmVendorException was thrown: " . $e->getMessage());
+
         }
     }
+
+
 }
