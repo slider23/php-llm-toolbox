@@ -6,9 +6,12 @@ use Slider23\PhpLlmToolbox\Dto\LlmResponseDto;
 use Slider23\PhpLlmToolbox\Dto\Mappers\AnthropicResponseMapper;
 use Slider23\PhpLlmToolbox\Exceptions\LlmVendorException;
 use Slider23\PhpLlmToolbox\Helper;
+use Slider23\PhpLlmToolbox\Tools\ToolAwareTrait;
+use Slider23\PhpLlmToolbox\Tools\AnthropicToolAdapter;
 
 final class AnthropicClient extends LlmVendorClient implements LlmVendorClientInterface
 {
+    use ToolAwareTrait;
     public string $model;
 
     private string $apiKey;
@@ -20,7 +23,9 @@ final class AnthropicClient extends LlmVendorClient implements LlmVendorClientIn
     public int $max_tokens = 4000; // 8192 max
     public float $temperature = 0;
     public int $thinking = 0; // количество токенов, которые будут использованы для размышлений
-
+    
+    public ?array $tools = null;
+    public ?array $tool_choice = null;
 
     public bool $debug = false;
 
@@ -65,6 +70,14 @@ final class AnthropicClient extends LlmVendorClient implements LlmVendorClientIn
                 "type" => "enabled",
                 "budget_tokens" => $this->thinking
             ];
+        }
+        
+        // Add tools if available
+        if ($this->hasTools()) {
+            $this->body['tools'] = AnthropicToolAdapter::convertToolDefinitions($this->toolExecutor->getTools());
+        }
+        if ($this->tool_choice !== null) {
+            $this->body['tool_choice'] = $this->tool_choice;
         }
     }
 
@@ -115,6 +128,25 @@ final class AnthropicClient extends LlmVendorClient implements LlmVendorClientIn
             throw new LlmVendorException("Anthropic error: ".$dto->errorMessage);
         }
         return $dto;
+    }
+
+    /**
+     * Override handleToolCalls to work with Anthropic's format
+     */
+    protected function handleToolCalls(array $responseData): ?array
+    {
+        if (!$this->hasTools()) {
+            return null;
+        }
+
+        $toolCalls = AnthropicToolAdapter::extractToolCalls($responseData);
+        
+        if (empty($toolCalls)) {
+            return null;
+        }
+
+        $toolResults = $this->toolExecutor->executeToolCalls($toolCalls);
+        return AnthropicToolAdapter::formatToolResults($toolResults);
     }
 
     public function createMessageBatch(array $batchRequests): ?string
