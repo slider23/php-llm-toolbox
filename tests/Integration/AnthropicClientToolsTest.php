@@ -119,30 +119,31 @@ class AnthropicClientToolsTest extends TestCase
             $this->assertEquals('anthropic', $response->vendor, "Response vendor should be 'anthropic'.");
             
             // Check if tools were used in the response
-            $rawResponse = $response->rawResponse;
-            if (isset($rawResponse['content'])) {
-                $toolUsed = false;
-                foreach ($rawResponse['content'] as $content) {
-                    if (isset($content['type']) && $content['type'] === 'tool_use') {
-                        $toolUsed = true;
-                        $this->assertEquals('calculator', $content['name']);
-                        $this->assertArrayHasKey('input', $content);
-                        $this->assertArrayHasKey('operation', $content['input']);
-                        $this->assertEquals('add', $content['input']['operation']);
-                        $this->assertEquals(25, $content['input']['a']);
-                        $this->assertEquals(17, $content['input']['b']);
+            if ($response->toolsUsed) {
+                $this->assertTrue($response->toolsUsed);
+                $this->assertIsArray($response->toolCalls);
+                $this->assertGreaterThan(0, count($response->toolCalls));
+                
+                // Verify calculator tool was called
+                $calculatorCall = null;
+                foreach ($response->toolCalls as $call) {
+                    if ($call['function']['name'] === 'calculator') {
+                        $calculatorCall = $call;
                         break;
                     }
                 }
                 
-                if ($toolUsed) {
-                    // Extract and execute tool calls
-                    $toolCalls = AnthropicToolAdapter::extractToolCalls($rawResponse);
-                    $this->assertIsArray($toolCalls);
-                    $this->assertGreaterThan(0, count($toolCalls));
+                if ($calculatorCall) {
+                    $this->assertNotNull($calculatorCall);
+                    $this->assertEquals('calculator', $calculatorCall['function']['name']);
+                    
+                    $arguments = json_decode($calculatorCall['function']['arguments'], true);
+                    $this->assertEquals('add', $arguments['operation']);
+                    $this->assertEquals(25, $arguments['a']);
+                    $this->assertEquals(17, $arguments['b']);
                     
                     // Execute tool and verify result
-                    $toolResults = $client->getToolExecutor()->executeToolCalls($toolCalls);
+                    $toolResults = $client->getToolExecutor()->executeToolCalls($response->toolCalls);
                     $this->assertIsArray($toolResults);
                     $this->assertGreaterThan(0, count($toolResults));
                     
@@ -176,22 +177,28 @@ class AnthropicClientToolsTest extends TestCase
             $this->assertNotEmpty($response->assistantContent, "Response content should not be empty.");
             
             // Check if tools were used in the response
-            $rawResponse = $response->rawResponse;
-            if (isset($rawResponse['content'])) {
-                $toolUsed = false;
-                foreach ($rawResponse['content'] as $content) {
-                    if (isset($content['type']) && $content['type'] === 'tool_use' && $content['name'] === 'get_weather') {
-                        $toolUsed = true;
-                        $this->assertArrayHasKey('input', $content);
-                        $this->assertArrayHasKey('location', $content['input']);
+            if ($response->toolsUsed) {
+                $this->assertTrue($response->toolsUsed);
+                $this->assertIsArray($response->toolCalls);
+                
+                // Verify weather tool was called
+                $weatherCall = null;
+                foreach ($response->toolCalls as $call) {
+                    if ($call['function']['name'] === 'get_weather') {
+                        $weatherCall = $call;
                         break;
                     }
                 }
                 
-                if ($toolUsed) {
-                    // Extract and execute tool calls
-                    $toolCalls = AnthropicToolAdapter::extractToolCalls($rawResponse);
-                    $toolResults = $client->getToolExecutor()->executeToolCalls($toolCalls);
+                if ($weatherCall) {
+                    $this->assertNotNull($weatherCall);
+                    $this->assertEquals('get_weather', $weatherCall['function']['name']);
+                    
+                    $arguments = json_decode($weatherCall['function']['arguments'], true);
+                    $this->assertArrayHasKey('location', $arguments);
+                    
+                    // Execute tool calls and verify result
+                    $toolResults = $client->getToolExecutor()->executeToolCalls($response->toolCalls);
                     
                     // Verify weather tool was used
                     foreach ($toolResults as $result) {
@@ -229,20 +236,25 @@ class AnthropicClientToolsTest extends TestCase
             $this->assertNotEmpty($response->assistantContent, "Response content should not be empty.");
             
             // Check if tools were used in the response
-            $rawResponse = $response->rawResponse;
-            if (isset($rawResponse['content'])) {
-                $toolUsed = false;
-                foreach ($rawResponse['content'] as $content) {
-                    if (isset($content['type']) && $content['type'] === 'tool_use' && $content['name'] === 'get_current_time') {
-                        $toolUsed = true;
+            if ($response->toolsUsed) {
+                $this->assertTrue($response->toolsUsed);
+                $this->assertIsArray($response->toolCalls);
+                
+                // Verify time tool was called
+                $timeCall = null;
+                foreach ($response->toolCalls as $call) {
+                    if ($call['function']['name'] === 'get_current_time') {
+                        $timeCall = $call;
                         break;
                     }
                 }
                 
-                if ($toolUsed) {
-                    // Extract and execute tool calls
-                    $toolCalls = AnthropicToolAdapter::extractToolCalls($rawResponse);
-                    $toolResults = $client->getToolExecutor()->executeToolCalls($toolCalls);
+                if ($timeCall) {
+                    $this->assertNotNull($timeCall);
+                    $this->assertEquals('get_current_time', $timeCall['function']['name']);
+                    
+                    // Execute tool calls and verify result
+                    $toolResults = $client->getToolExecutor()->executeToolCalls($response->toolCalls);
                     
                     // Verify time tool was used
                     foreach ($toolResults as $result) {

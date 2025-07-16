@@ -61,8 +61,36 @@ class AnthropicResponseMapper
         $dto->rawResponse = $responseArray;
         $dto->id = $responseArray['id'] ?? null;
         $dto->model = $responseArray['model'] ?? null;
-        $dto->assistantContent = $responseArray['content'][0]['text'] ?? null;
         $dto->finishReason = $responseArray['stop_reason'] ?? null;
+        
+        // Handle content and tool calls
+        if(isset($responseArray['content']) && is_array($responseArray['content'])){
+            $textContent = '';
+            $toolCalls = [];
+            
+            foreach($responseArray['content'] as $content){
+                if(isset($content['type'])){
+                    if($content['type'] === 'text'){
+                        $textContent .= $content['text'] ?? '';
+                    } elseif($content['type'] === 'tool_use'){
+                        $toolCalls[] = [
+                            'id' => $content['id'],
+                            'function' => [
+                                'name' => $content['name'],
+                                'arguments' => json_encode($content['input'] ?? [])
+                            ]
+                        ];
+                    }
+                }
+            }
+            
+            $dto->assistantContent = $textContent ?: null;
+            
+            if(!empty($toolCalls)){
+                $dto->toolsUsed = true;
+                $dto->toolCalls = $toolCalls;
+            }
+        }
         
         if(isset($responseArray['usage'])){
             $dto->inputTokens = $responseArray['usage']['input_tokens'] ?? null;

@@ -116,15 +116,14 @@ class OpenrouterClientToolsTest extends TestCase
             $this->assertEquals('openrouter', $response->vendor, "Response vendor should be 'openrouter'.");
             
             // Check if tools were used in the response
-            $rawResponse = $response->rawResponse;
-            if (isset($rawResponse['choices'][0]['message']['tool_calls'])) {
-                $toolCalls = $rawResponse['choices'][0]['message']['tool_calls'];
-                $this->assertIsArray($toolCalls);
-                $this->assertGreaterThan(0, count($toolCalls));
+            if ($response->toolsUsed) {
+                $this->assertTrue($response->toolsUsed);
+                $this->assertIsArray($response->toolCalls);
+                $this->assertGreaterThan(0, count($response->toolCalls));
                 
                 // Verify calculator tool was called
                 $calculatorCall = null;
-                foreach ($toolCalls as $call) {
+                foreach ($response->toolCalls as $call) {
                     if ($call['function']['name'] === 'calculator') {
                         $calculatorCall = $call;
                         break;
@@ -136,7 +135,7 @@ class OpenrouterClientToolsTest extends TestCase
                     $this->assertEquals('calculator', $calculatorCall['function']['name']);
                     
                     // Execute the tool call
-                    $toolResults = $client->getToolExecutor()->executeToolCalls($toolCalls);
+                    $toolResults = $client->getToolExecutor()->executeToolCalls($response->toolCalls);
                     $this->assertIsArray($toolResults);
                     $this->assertGreaterThan(0, count($toolResults));
                     
@@ -171,12 +170,12 @@ class OpenrouterClientToolsTest extends TestCase
             $this->assertNotEmpty($response->assistantContent, "Response content should not be empty.");
             
             // Check if tools were used in the response
-            $rawResponse = $response->rawResponse;
-            if (isset($rawResponse['choices'][0]['message']['tool_calls'])) {
-                $toolCalls = $rawResponse['choices'][0]['message']['tool_calls'];
+            if ($response->toolsUsed) {
+                $this->assertTrue($response->toolsUsed);
+                $this->assertIsArray($response->toolCalls);
                 
                 // Execute the tool calls
-                $toolResults = $client->getToolExecutor()->executeToolCalls($toolCalls);
+                $toolResults = $client->getToolExecutor()->executeToolCalls($response->toolCalls);
                 $this->assertIsArray($toolResults);
                 
                 // Verify weather tool was used

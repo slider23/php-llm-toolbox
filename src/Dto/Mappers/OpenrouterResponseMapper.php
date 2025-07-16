@@ -25,6 +25,12 @@ class OpenrouterResponseMapper
         if(isset($responseArray['choices'][0])){
             $dto->assistantContent = $responseArray['choices'][0]['message']['content'] ?? null;
             $dto->finishReason = $responseArray['choices'][0]['finish_reason'] ?? null;
+            
+            // Handle tool calls
+            if(isset($responseArray['choices'][0]['message']['tool_calls'])){
+                $dto->toolsUsed = true;
+                $dto->toolCalls = $responseArray['choices'][0]['message']['tool_calls'];
+            }
         }
         if(isset($responseArray['usage'])){
             $dto->inputTokens = $responseArray['usage']['prompt_tokens'] ?? null;
