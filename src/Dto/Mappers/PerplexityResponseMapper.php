@@ -64,7 +64,7 @@ class PerplexityResponseMapper
             $dto->inputTokens = $responseArray['usage']['prompt_tokens'] ?? null;
             $dto->outputTokens = $responseArray['usage']['completion_tokens'] ?? null;
             $dto->citations = $responseArray['usage']['citations'] ?? null;
-            $dto->search_results = $responseArray['usage']['search_results'] ?? null;
+//            $dto->searchResults = $responseArray['usage']['search_results'] ?? null;
             $dto->thinkTokens = $responseArray['usage']['reasoning_tokens'] ?? null;
             $dto->citationTokens = $responseArray['usage']['citation_tokens'] ?? null;
             $dto->totalTokens = $responseArray['usage']['total_tokens'] ?? null;
@@ -79,7 +79,7 @@ class PerplexityResponseMapper
                 + $dto->perplexityNumSearchQueries * $prices['searchRequests'][$dto->perplexitySearchContextSize];
         }
         $dto->citations = $responseArray['citations'] ?? null;
-        $dto->search_results = $responseArray['search_results'] ?? null;
+        $dto->searchResults = $responseArray['search_results'] ?? null;
         if($dto->citations && is_array($dto->citations)) {
             $dto->assistantContent = self::replaceFootnotesWithLinks($dto->assistantContent, $dto->citations);
         }

@@ -33,7 +33,7 @@ class LlmResponseDto
     /**
      * @var SearchResultDto[]
      */
-    public ?array $search_results = [];
+    public ?array $searchResults = [];
     
     // Tool-related attributes
     public bool $toolsUsed = false;
