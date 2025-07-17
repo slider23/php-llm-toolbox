@@ -26,7 +26,7 @@ class DeepseekClientTest extends TestCase
         }
     }
 
-    public function testSuccessfulBaseRequest(): void
+    public function testDeepseekChat(): void
     {
         $model = "deepseek-chat"; // Используем модель deepseek-chat
         $client = new DeepseekClient($model, $this->apiKey);
@@ -51,11 +51,38 @@ class DeepseekClientTest extends TestCase
             $this->assertIsNumeric($response->outputTokens);
             $this->assertIsFloat($response->cost);
             $this->assertGreaterThan(0, $response->cost, "Cost should be greater than 0.");
-
-//            file_put_contents(__DIR__."/../stubs/{$model}_response.json", json_encode($response->rawResponse, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
         } catch (LlmVendorException $e) {
             $this->fail("LlmVendorException was thrown: " . $e->getMessage());
         }
     }
 
+    public function testDeepseekReasoner(): void
+    {
+        $model = "deepseek-reasoner"; // Используем модель deepseek-chat
+        $client = new DeepseekClient($model, $this->apiKey);
+
+        $client->timeout = 30; // Можно установить меньший таймаут для тестов
+
+        $messages = [
+            SystemMessage::make('Be precise and concise.'),
+            UserMessage::make('What is the capital of France?')
+        ];
+
+        try {
+            $response = $client->request($messages);
+
+            $this->assertInstanceOf(LlmResponseDto::class, $response);
+            $this->assertNotEquals('error', $response->status, "Response status should not be 'error'. Error message: " . $response->errorMessage);
+            $this->assertNotEmpty($response->assistantContent, "Response content should not be empty.");
+            $this->assertStringContainsStringIgnoringCase('Paris', $response->assistantContent, "Response content should mention Paris.");
+            $this->assertNotEmpty($response->model, "Response model should not be empty.");
+            $this->assertEquals('deepseek', $response->vendor, "Response vendor should be 'deepseek'.");
+            $this->assertIsNumeric($response->inputTokens);
+            $this->assertIsNumeric($response->outputTokens);
+            $this->assertIsFloat($response->cost);
+            $this->assertGreaterThan(0, $response->cost, "Cost should be greater than 0.");
+        } catch (LlmVendorException $e) {
+            $this->fail("LlmVendorException was thrown: " . $e->getMessage());
+        }
+    }
 }
