@@ -60,4 +60,13 @@ class LlmResponseDto
             $this->assistantContent = preg_replace("/<think>.*?<\/think>/s", "", $this->assistantContent);
         }
     }
+
+    public function trap()
+    {
+        if(function_exists("trap")){
+            $copy = clone $this;
+            $copy->rawResponse = [];
+            trap($copy);
+        }
+    }
 }

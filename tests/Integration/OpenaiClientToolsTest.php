@@ -3,7 +3,7 @@
 namespace Slider23\PhpLlmToolbox\Tests\Integration;
 
 use PHPUnit\Framework\TestCase;
-use Slider23\PhpLlmToolbox\Clients\OpenrouterClient;
+use Slider23\PhpLlmToolbox\Clients\OpenaiClient;
 use Slider23\PhpLlmToolbox\Dto\LlmResponseDto;
 use Slider23\PhpLlmToolbox\Exceptions\LlmVendorException;
 use Slider23\PhpLlmToolbox\Messages\SystemMessage;
@@ -13,7 +13,7 @@ use Slider23\PhpLlmToolbox\Tools\Examples\CalculatorTool;
 use Slider23\PhpLlmToolbox\Tools\Examples\WeatherTool;
 use Slider23\PhpLlmToolbox\Tools\Examples\TimeTool;
 
-class OpenrouterClientToolsTest extends TestCase
+class OpenaiClientToolsTest extends TestCase
 {
     private ?string $apiKey;
     private ToolExecutor $toolExecutor;
@@ -21,11 +21,11 @@ class OpenrouterClientToolsTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->apiKey = getenv('OPENROUTER_API_KEY') ?: $_ENV['OPENROUTER_API_KEY'] ?? null;
+        $this->apiKey = getenv('OPENAI_API_KEY') ?: $_ENV['OPENAI_API_KEY'] ?? null;
 
         if (empty($this->apiKey)) {
             $this->markTestSkipped(
-                'OpenRouter API key not configured in environment variables (OPENROUTER_API_KEY) or contains placeholder value.'
+                'OpenAI API key not configured in environment variables (OPENAI_API_KEY) or contains placeholder value.'
             );
         }
 
@@ -40,7 +40,7 @@ class OpenrouterClientToolsTest extends TestCase
 
     public function testToolsRegistration(): void
     {
-        $client = new OpenrouterClient("openai/gpt-4o-mini", $this->apiKey);
+        $client = new OpenaiClient("gpt-4o-mini", $this->apiKey);
         $client->setToolExecutor($this->toolExecutor);
 
         $this->assertTrue($client->hasTools());
@@ -96,8 +96,7 @@ class OpenrouterClientToolsTest extends TestCase
 
     public function testLlmRequestWithToolsSupport(): void
     {
-        // Use context7 model as requested
-        $client = new OpenrouterClient("anthropic/claude-3-5-sonnet", $this->apiKey);
+        $client = new OpenaiClient("gpt-4o-mini", $this->apiKey);
         $client->setToolExecutor($this->toolExecutor);
         $client->timeout = 30;
 
@@ -108,12 +107,13 @@ class OpenrouterClientToolsTest extends TestCase
 
         try {
             $response = $client->request($messages);
-            $response->trap();
+            
             $this->assertInstanceOf(LlmResponseDto::class, $response);
             $this->assertNotEquals('error', $response->status, "Response status should not be 'error'. Error message: " . $response->errorMessage);
 //            $this->assertNotEmpty($response->assistantContent, "Response content should not be empty.");
+            $this->assertEquals('tool_calls', $response->finishReason);
             $this->assertNotEmpty($response->model, "Response model should not be empty.");
-            $this->assertEquals('openrouter', $response->vendor, "Response vendor should be 'openrouter'.");
+            $this->assertEquals('openai', $response->vendor, "Response vendor should be 'openai'.");
             
             // Check if tools were used in the response
             if ($response->toolsUsed) {
@@ -153,7 +153,7 @@ class OpenrouterClientToolsTest extends TestCase
 
     public function testLlmRequestWithWeatherTool(): void
     {
-        $client = new OpenrouterClient("anthropic/claude-3-5-sonnet", $this->apiKey);
+        $client = new OpenaiClient("gpt-4o-mini", $this->apiKey);
         $client->setToolExecutor($this->toolExecutor);
         $client->timeout = 30;
 
@@ -167,7 +167,8 @@ class OpenrouterClientToolsTest extends TestCase
             
             $this->assertInstanceOf(LlmResponseDto::class, $response);
             $this->assertNotEquals('error', $response->status, "Response status should not be 'error'. Error message: " . $response->errorMessage);
-            $this->assertNotEmpty($response->assistantContent, "Response content should not be empty.");
+//            $this->assertNotEmpty($response->assistantContent, "Response content should not be empty.");
+            $this->assertEquals('tool_calls', $response->finishReason);
             
             // Check if tools were used in the response
             if ($response->toolsUsed) {
@@ -192,6 +193,126 @@ class OpenrouterClientToolsTest extends TestCase
         } catch (LlmVendorException $e) {
             $this->fail("LlmVendorException was thrown: " . $e->getMessage());
         }
+    }
+
+    public function testLlmRequestWithTimeTool(): void
+    {
+        $client = new OpenaiClient("gpt-4o-mini", $this->apiKey);
+        $client->setToolExecutor($this->toolExecutor);
+        $client->timeout = 30;
+
+        $messages = [
+            SystemMessage::make('You are a helpful assistant with access to tools. Use the time tool to get current time information.'),
+            UserMessage::make('What time is it now?')
+        ];
+
+        try {
+            $response = $client->request($messages);
+            
+            $this->assertInstanceOf(LlmResponseDto::class, $response);
+            $this->assertNotEquals('error', $response->status, "Response status should not be 'error'. Error message: " . $response->errorMessage);
+//            $this->assertNotEmpty($response->assistantContent, "Response content should not be empty.");
+            $this->assertEquals('tool_calls', $response->finishReason);
+            
+            // Check if tools were used in the response
+            if ($response->toolsUsed) {
+                $this->assertTrue($response->toolsUsed);
+                $this->assertIsArray($response->toolCalls);
+                
+                // Execute the tool calls
+                $toolResults = $client->getToolExecutor()->executeToolCalls($response->toolCalls);
+                $this->assertIsArray($toolResults);
+                
+                // Verify time tool was used
+                foreach ($toolResults as $result) {
+                    $toolResult = json_decode($result['content'], true);
+                    if ($toolResult['success'] && isset($toolResult['data']['current_time'])) {
+                        $this->assertArrayHasKey('timestamp', $toolResult['data']);
+                        $this->assertArrayHasKey('timezone', $toolResult['data']);
+                        break;
+                    }
+                }
+            }
+            
+        } catch (LlmVendorException $e) {
+            $this->fail("LlmVendorException was thrown: " . $e->getMessage());
+        }
+    }
+
+    public function testLlmRequestWithMultipleTools(): void
+    {
+        $client = new OpenaiClient("gpt-4o", $this->apiKey);
+        $client->setToolExecutor($this->toolExecutor);
+        $client->timeout = 45;
+
+        $messages = [
+            SystemMessage::make('You are a helpful assistant with access to tools. Use the appropriate tools to answer user questions.'),
+            UserMessage::make('What is 10 * 5 and what time is it now?')
+        ];
+
+        try {
+            $response = $client->request($messages);
+            $response->trap();
+            $this->assertInstanceOf(LlmResponseDto::class, $response);
+            $this->assertNotEquals('error', $response->status, "Response status should not be 'error'. Error message: " . $response->errorMessage);
+//            $this->assertNotEmpty($response->assistantContent, "Response content should not be empty.");
+            $this->assertEquals('tool_calls', $response->finishReason);
+            
+            // Check if tools were used in the response
+            if ($response->toolsUsed) {
+                $this->assertTrue($response->toolsUsed);
+                $this->assertIsArray($response->toolCalls);
+                
+                // Execute the tool calls
+                $toolResults = $client->getToolExecutor()->executeToolCalls($response->toolCalls);
+                $this->assertIsArray($toolResults);
+                
+                // Check if multiple tools were used
+                $toolNames = array_map(function($call) {
+                    return $call['function']['name'];
+                }, $response->toolCalls);
+                
+                // Should have used calculator and possibly time tool
+                $this->assertContains('calculator', $toolNames);
+            }
+            
+        } catch (LlmVendorException $e) {
+            $this->fail("LlmVendorException was thrown: " . $e->getMessage());
+        }
+    }
+
+    public function testToolChoiceParameter(): void
+    {
+        $client = new OpenaiClient("gpt-4o-mini", $this->apiKey);
+        $client->setToolExecutor($this->toolExecutor);
+        $client->tool_choice = ["type" => "function", "function" => ["name" => "calculator"]];
+
+        $messages = [
+            SystemMessage::make('You are a helpful assistant with access to tools.'),
+            UserMessage::make('What is 5 + 3?')
+        ];
+
+        $client->setBody($messages);
+        
+        $this->assertArrayHasKey('tool_choice', $client->body);
+        $this->assertEquals(["type" => "function", "function" => ["name" => "calculator"]], $client->body['tool_choice']);
+    }
+
+    public function testParallelToolCalls(): void
+    {
+        $client = new OpenaiClient("gpt-4o-mini", $this->apiKey);
+        $client->setToolExecutor($this->toolExecutor);
+        $client->parallel_tool_calls = true;
+
+        $messages = [
+            SystemMessage::make('You are a helpful assistant with access to tools.'),
+            UserMessage::make('What is 8 + 2?')
+        ];
+
+        $client->setBody($messages);
+        
+        $this->assertArrayHasKey('parallel_tool_calls', $client->body);
+        $this->assertTrue($client->body['parallel_tool_calls']);
     }
 
     public function testToolErrorHandling(): void

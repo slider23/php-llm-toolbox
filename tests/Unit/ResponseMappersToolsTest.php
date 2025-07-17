@@ -5,6 +5,7 @@ namespace Slider23\PhpLlmToolbox\Tests\Unit;
 use PHPUnit\Framework\TestCase;
 use Slider23\PhpLlmToolbox\Dto\Mappers\OpenrouterResponseMapper;
 use Slider23\PhpLlmToolbox\Dto\Mappers\AnthropicResponseMapper;
+use Slider23\PhpLlmToolbox\Dto\Mappers\OpenaiResponseMapper;
 
 class ResponseMappersToolsTest extends TestCase
 {
@@ -240,5 +241,74 @@ class ResponseMappersToolsTest extends TestCase
         
         // Check that text content is properly concatenated
         $this->assertEquals('First,  and then some more text.', $dto->assistantContent);
+    }
+
+    public function testOpenaiResponseMapperWithTools(): void
+    {
+        $responseData = [
+            'id' => 'chatcmpl-123',
+            'model' => 'gpt-4o-mini',
+            'choices' => [
+                [
+                    'message' => [
+                        'content' => 'I will calculate that for you.',
+                        'tool_calls' => [
+                            [
+                                'id' => 'call_123',
+                                'type' => 'function',
+                                'function' => [
+                                    'name' => 'calculator',
+                                    'arguments' => '{"operation": "add", "a": 5, "b": 3}'
+                                ]
+                            ]
+                        ]
+                    ],
+                    'finish_reason' => 'tool_calls'
+                ]
+            ],
+            'usage' => [
+                'prompt_tokens' => 20,
+                'completion_tokens' => 10,
+                'total_tokens' => 30
+            ]
+        ];
+
+        $dto = OpenaiResponseMapper::makeDto($responseData);
+
+        $this->assertTrue($dto->toolsUsed);
+        $this->assertIsArray($dto->toolCalls);
+        $this->assertCount(1, $dto->toolCalls);
+        $this->assertEquals('call_123', $dto->toolCalls[0]['id']);
+        $this->assertEquals('function', $dto->toolCalls[0]['type']);
+        $this->assertEquals('calculator', $dto->toolCalls[0]['function']['name']);
+        $this->assertEquals('{"operation": "add", "a": 5, "b": 3}', $dto->toolCalls[0]['function']['arguments']);
+        $this->assertEquals('I will calculate that for you.', $dto->assistantContent);
+    }
+
+    public function testOpenaiResponseMapperWithoutTools(): void
+    {
+        $responseData = [
+            'id' => 'chatcmpl-123',
+            'model' => 'gpt-4o-mini',
+            'choices' => [
+                [
+                    'message' => [
+                        'content' => 'Hello! How can I help you today?'
+                    ],
+                    'finish_reason' => 'stop'
+                ]
+            ],
+            'usage' => [
+                'prompt_tokens' => 10,
+                'completion_tokens' => 8,
+                'total_tokens' => 18
+            ]
+        ];
+
+        $dto = OpenaiResponseMapper::makeDto($responseData);
+
+        $this->assertFalse($dto->toolsUsed);
+        $this->assertEmpty($dto->toolCalls);
+        $this->assertEquals('Hello! How can I help you today?', $dto->assistantContent);
     }
 }
