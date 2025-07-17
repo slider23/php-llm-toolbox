@@ -45,7 +45,7 @@ abstract class LlmVendorClient
 
     abstract public function request(array $messages): LlmResponseDto;
 
-    public function throwIfError($curl, ?array $response): void
+    public function throwIfError($curl, ?array $response = null): void
     {
         if(curl_errno($curl)) {
             $error = curl_error($curl);

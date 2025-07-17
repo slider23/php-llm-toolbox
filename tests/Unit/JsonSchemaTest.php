@@ -11,9 +11,9 @@ class JsonSchemaTest extends \PHPUnit\Framework\TestCase
     {
         $generator = new Generator();
         $schema = $generator->generate(QuestionDto::class);
-        trap($schema);
+//        trap($schema);
         $result = $schema->jsonSerialize();
-        trap($result);
+//        trap($result);
 
         $this->assertArrayHasKey("properties", $result);
         $this->assertArrayHasKey("title", $result['properties']);

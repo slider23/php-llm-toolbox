@@ -5,6 +5,7 @@ namespace Slider23\PhpLlmToolbox\Clients;
 use Slider23\PhpLlmToolbox\Dto\LlmResponseDto;
 use Slider23\PhpLlmToolbox\Dto\Mappers\AnthropicResponseMapper;
 use Slider23\PhpLlmToolbox\Exceptions\LlmVendorException;
+use Slider23\PhpLlmToolbox\Exceptions\WrongJsonException;
 use Slider23\PhpLlmToolbox\Helper;
 use Slider23\PhpLlmToolbox\Tools\ToolAwareTrait;
 use Slider23\PhpLlmToolbox\Tools\AnthropicToolAdapter;
@@ -195,85 +196,53 @@ final class AnthropicClient extends LlmVendorClient implements LlmVendorClientIn
         $response = curl_exec($curl);
         curl_close($curl);
 
-        $result = json_decode($response, true);
+        $result = $this->jsonDecode($response);
+        $this->throwIfError($curl, $result);
+
         return $result;
     }
 
     public function retrieveMessageBatchResults(string $messageBatchId)
     {
-//        trap("https://api.anthropic.com/v1/messages/batches/$messageBatchId/results");
-        $guzzle = new \GuzzleHttp\Client;
-        try {
-            $response = $guzzle->get("https://api.anthropic.com/v1/messages/batches/$messageBatchId/results", [
-                'headers' => [
-                    'x-api-key' => $this->apiKey,
-                    'anthropic-version' => $this->apiVersion,
-                    'content-type' => 'application/json',
-                ],
-                'debug' => $this->debug,
-                'timeout' => $this->timeout,
-            ]);
-            $content = $response->getBody()->getContents();
+        $curl = curl_init();
+        curl_setopt_array($curl, [
+            CURLOPT_URL => "https://api.anthropic.com/v1/messages/batches/$messageBatchId/results",
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_HTTPHEADER => [
+                'x-api-key: ' . $this->apiKey,
+                'anthropic-version: ' . $this->apiVersion,
+                'content-type: application/json',
+            ],
+            CURLOPT_TIMEOUT => $this->timeout,
+        ]);
+        $response = curl_exec($curl);
+        curl_close($curl);
 
-            $curl = curl_init();
-            curl_setopt_array($curl, [
-                CURLOPT_URL => "https://api.anthropic.com/v1/messages/batches/$messageBatchId/results",
-                CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_HTTPHEADER => [
-                    'x-api-key: ' . $this->apiKey,
-                    'anthropic-version: ' . $this->apiVersion,
-                    'content-type: application/json',
-                ],
-                CURLOPT_TIMEOUT => $this->timeout,
-            ]);
-            $content = curl_exec($curl);
-            if(curl_errno($curl)){
-
-                $error_msg = curl_error($curl);
-                // TODO log error
-            }
-            curl_close($curl);
-
-
-//            trap($content);
-            //            trap($response->getHeaders());
-            $items = explode("\n", $content);
-            $result = [];
-            foreach ($items as $item) {
-                //                trap($item);
-                if (Helper::isJson($item) === false) {
-                    // TODO log error
-                }
-                $result[] = json_decode($item, true);
-            }
-        } catch (\GuzzleHttp\Exception\ClientException $e) {
-            $result = null;
+        $items = explode("\n", $response);
+        $result = [];
+        foreach ($items as $item) {
+            $result[] = $this->jsonDecode($item);
         }
-
         return $result;
     }
 
-    public function cancelBatch(string $messageBatchId)
+    public function cancelBatch(string $messageBatchId): void
     {
-        $guzzle = new \GuzzleHttp\Client;
-        try {
-            $response = $guzzle->post("https://api.anthropic.com/v1/messages/batches/$messageBatchId/cancel", [
-                'headers' => [
-                    'x-api-key' => $this->apiKey,
-                    'anthropic-version' => $this->apiVersion,
-                    'content-type' => 'application/json',
-                ],
-                'debug' => $this->debug,
-                'timeout' => $this->timeout,
-            ]);
-            $content = $response->getBody()->getContents();
-            //            trap($content);
-        } catch (\GuzzleHttp\Exception\ClientException $e) {
-            $result = null;
-            //            trap("error ".$e->getMessage());
-        }
+        $curl = curl_init();
+        curl_setopt_array($curl, [
+            CURLOPT_URL => "https://api.anthropic.com/v1/messages/batches/$messageBatchId/cancel",
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_HTTPHEADER => [
+                'x-api-key: ' . $this->apiKey,
+                'anthropic-version: ' . $this->apiVersion,
+                'content-type: application/json',
+            ],
+            CURLOPT_TIMEOUT => $this->timeout,
+        ]);
+        curl_exec($curl);
+        curl_close($curl);
 
-        return $result;
+        $this->throwIfError($curl);
     }
 
     public function calculateTokens(string $text): ?int
