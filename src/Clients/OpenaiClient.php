@@ -2,6 +2,7 @@
 
 namespace Slider23\PhpLlmToolbox\Clients;
 
+use Slider23\PhpLlmToolbox\Dto\EmbeddingDto;
 use Slider23\PhpLlmToolbox\Dto\LlmResponseDto;
 use Slider23\PhpLlmToolbox\Dto\Mappers\OpenaiResponseMapper;
 use Slider23\PhpLlmToolbox\Exceptions\LlmVendorException;
@@ -123,7 +124,7 @@ class OpenaiClient extends LlmVendorClient implements LlmVendorClientInterface
         return $dto;
     }
 
-    public function createEmbedding(string $input, string $model = 'text-embedding-3-small'): array
+    public function createEmbedding(string $input, string $model = 'text-embedding-3-small'): EmbeddingDto
     {
         $body = [
             'model' => $model,
@@ -164,7 +165,9 @@ class OpenaiClient extends LlmVendorClient implements LlmVendorClientInterface
         $result = $this->jsonDecode($response);
         $this->throwIfError($curl, $result);
 
-        return $result;
+        $dto = OpenaiResponseMapper::makeEmbeddingDto($result);
+
+        return $dto;
     }
 
     public function moderateContent(string $input): array

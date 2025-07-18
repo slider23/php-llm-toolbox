@@ -2,6 +2,7 @@
 
 namespace Slider23\PhpLlmToolbox\Dto\Mappers;
 
+use Slider23\PhpLlmToolbox\Dto\EmbeddingDto;
 use Slider23\PhpLlmToolbox\Dto\LlmResponseDto;
 
 class OpenaiResponseMapper
@@ -34,6 +35,15 @@ class OpenaiResponseMapper
         'o1-mini' => [
             'inputTokens' => 3.00 / 1_000_000,
             'outputTokens' => 12.00 / 1_000_000,
+        ],
+        'text-embedding-3-small' => [
+            'inputTokens' => 0.02 / 1_000_000,
+        ],
+        'text-embedding-3-large' => [
+            'inputTokens' => 0.13 / 1_000_000,
+        ],
+        'text-embedding-ada-002' => [
+            'inputTokens' => 0.10 / 1_000_000,
         ],
     ];
 
@@ -87,6 +97,31 @@ class OpenaiResponseMapper
         }
         
         $dto->_extractThinking();
+        return $dto;
+    }
+
+
+    public static function makeEmbeddingDto(array $responseArray): EmbeddingDto
+    {
+        $dto = new EmbeddingDto();
+        if (isset($responseArray['error'])) {
+            $dto->status = "error";
+            $dto->errorMessage = $responseArray['error']['message'] ?? null;
+            return $dto;
+        }
+
+        $dto->vendor = "openai";
+        $dto->status = "success";
+        $dto->embedding = $responseArray['data'][0]['embedding'] ?? [];
+        $dto->model = $responseArray['model'] ?? null;
+        $dto->tokens = $responseArray['usage']['total_tokens'] ?? 0;
+        $prices = self::$pricesByModel[$dto->model] ?? null;
+        if($prices && $dto->tokens) {
+            $dto->cost = $dto->tokens * ($prices['inputTokens'] ?? 0);
+        } else {
+            $dto->cost = 0; // Default cost if no pricing info is available
+        }
+
         return $dto;
     }
 }

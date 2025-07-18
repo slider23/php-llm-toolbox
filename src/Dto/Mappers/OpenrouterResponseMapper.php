@@ -2,6 +2,7 @@
 
 namespace Slider23\PhpLlmToolbox\Dto\Mappers;
 
+use Slider23\PhpLlmToolbox\Dto\EmbeddingDto;
 use Slider23\PhpLlmToolbox\Dto\LlmResponseDto;
 
 class OpenrouterResponseMapper

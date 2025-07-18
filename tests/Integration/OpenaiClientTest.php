@@ -4,7 +4,9 @@ namespace Slider23\PhpLlmToolbox\Tests\Integration;
 
 use PHPUnit\Framework\TestCase;
 use Slider23\PhpLlmToolbox\Clients\OpenaiClient;
+use Slider23\PhpLlmToolbox\Dto\EmbeddingDto;
 use Slider23\PhpLlmToolbox\Dto\LlmResponseDto;
+use Slider23\PhpLlmToolbox\Exceptions\LlmRequestException;
 use Slider23\PhpLlmToolbox\Exceptions\LlmVendorException;
 use Slider23\PhpLlmToolbox\Messages\SystemMessage;
 use Slider23\PhpLlmToolbox\Messages\UserMessage;
@@ -140,23 +142,29 @@ class OpenaiClientTest extends TestCase
         
         try {
             $response = $client->createEmbedding($text);
-            
-            $this->assertArrayHasKey('object', $response);
-            $this->assertEquals('list', $response['object']);
-            $this->assertArrayHasKey('data', $response);
-            $this->assertIsArray($response['data']);
-            $this->assertGreaterThan(0, count($response['data']));
-            
-            $embedding = $response['data'][0];
-            $this->assertArrayHasKey('object', $embedding);
-            $this->assertEquals('embedding', $embedding['object']);
-            $this->assertArrayHasKey('embedding', $embedding);
-            $this->assertIsArray($embedding['embedding']);
-            $this->assertGreaterThan(1000, count($embedding['embedding'])); // Embedding should have many dimensions
+            trap($response);
+            $this->assertInstanceOf(EmbeddingDto::class, $response);
+            $this->assertNotEmpty($response->embedding, "Embedding should not be empty.");
+            $this->assertIsArray($response->embedding, "Embedding should be an array.");
+            $this->assertNotEmpty($response->model, "Model should not be empty.");
+            $this->assertGreaterThan(1000, count($response->embedding)); // Embedding should have many dimensions
             
         } catch (LlmVendorException $e) {
             $this->fail("LlmVendorException was thrown: " . $e->getMessage());
         }
+    }
+
+    public function testCreateTooLongEmbedding(): void
+    {
+        $this->expectException(LlmRequestException::class);
+        $this->expectExceptionMessage('maximum context length');
+
+        $client = new OpenaiClient('gpt-4o-mini', $this->apiKey);
+        $text = file_get_contents("tests/stubs/too_big_chunk_to_embedding.txt");
+
+        $response = $client->createEmbedding($text);
+        trap($response);
+
     }
 
     public function testModerateContent(): void
