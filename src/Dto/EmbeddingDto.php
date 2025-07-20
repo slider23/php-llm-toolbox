@@ -6,7 +6,7 @@ class EmbeddingDto
 {
     public ?string $model = null;
     public ?string $vendor = null;
-    public array $embedding = []; // 1536 dimensions for OpenAI embeddings
+    public array $embedding = [];
     public int $tokens = 0;
     public ?float $cost = null;
 
