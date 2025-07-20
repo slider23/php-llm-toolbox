@@ -18,7 +18,7 @@ class VoyageEmbeddingClient
     //https://docs.voyageai.com/reference/embeddings-api
     public ?string $input_type = null; // null, "query" or "document"
     public bool $truncation = true;
-    public ?int $output_dimensions = null;
+    public ?int $output_dimension = null;
     public string $output_dtype = "float";
     public ?string $encoding_format = null;
 
@@ -39,7 +39,7 @@ class VoyageEmbeddingClient
             'input' => $input,
             'input_type' => $inputType,
             'truncation' => $this->truncation,
-            'output_dimensions' => $this->output_dimensions,
+            'output_dimension' => $this->output_dimension,
             'output_dtype' => $this->output_dtype,
             'encoding_format' => $this->encoding_format
         ];
