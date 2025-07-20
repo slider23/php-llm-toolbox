@@ -4,6 +4,7 @@ namespace Slider23\PhpLlmToolbox\Tests\Integration;
 
 use PHPUnit\Framework\TestCase;
 use Slider23\PhpLlmToolbox\Clients\OpenaiClient;
+use Slider23\PhpLlmToolbox\Clients\OpenaiEmbeddingClient;
 use Slider23\PhpLlmToolbox\Dto\EmbeddingDto;
 use Slider23\PhpLlmToolbox\Dto\LlmResponseDto;
 use Slider23\PhpLlmToolbox\Exceptions\LlmRequestException;
@@ -136,13 +137,13 @@ class OpenaiClientTest extends TestCase
 
     public function testCreateEmbedding(): void
     {
-        $client = new OpenaiClient('gpt-4o-mini', $this->apiKey);
+        $client = new OpenaiEmbeddingClient('text-embedding-3-small', $this->apiKey);
         
         $text = "This is a test sentence for embedding.";
         
         try {
             $response = $client->createEmbedding($text);
-            trap($response);
+//            trap($response);
             $this->assertInstanceOf(EmbeddingDto::class, $response);
             $this->assertNotEmpty($response->embedding, "Embedding should not be empty.");
             $this->assertIsArray($response->embedding, "Embedding should be an array.");
@@ -159,7 +160,7 @@ class OpenaiClientTest extends TestCase
         $this->expectException(LlmRequestException::class);
         $this->expectExceptionMessage('maximum context length');
 
-        $client = new OpenaiClient('gpt-4o-mini', $this->apiKey);
+        $client = new OpenaiEmbeddingClient('text-embedding-3-small', $this->apiKey);
         $text = file_get_contents("tests/stubs/too_big_chunk_to_embedding.txt");
 
         $response = $client->createEmbedding($text);

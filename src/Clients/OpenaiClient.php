@@ -124,51 +124,7 @@ class OpenaiClient extends LlmVendorClient implements LlmVendorClientInterface
         return $dto;
     }
 
-    public function createEmbedding(string $input, string $model = 'text-embedding-3-small'): EmbeddingDto
-    {
-        $body = [
-            'model' => $model,
-            'input' => $input,
-            'encoding_format' => 'float'
-        ];
 
-        $headers = [
-            'Authorization: Bearer ' . $this->apiKey,
-            'Content-Type: application/json'
-        ];
-        
-        if ($this->organization) {
-            $headers[] = 'OpenAI-Organization: ' . $this->organization;
-        }
-        
-        if ($this->project) {
-            $headers[] = 'OpenAI-Project: ' . $this->project;
-        }
-
-        $curl = curl_init();
-        curl_setopt_array($curl, [
-            CURLOPT_URL => 'https://api.openai.com/v1/embeddings',
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_POST => true,
-            CURLOPT_HTTPHEADER => $headers,
-            CURLOPT_POSTFIELDS => json_encode($body),
-            CURLOPT_TIMEOUT => $this->timeout
-        ]);
-
-        if ($this->debug) {
-            curl_setopt($curl, CURLOPT_VERBOSE, true);
-        }
-
-        $response = curl_exec($curl);
-        curl_close($curl);
-
-        $result = $this->jsonDecode($response);
-        $this->throwIfError($curl, $result);
-
-        $dto = OpenaiResponseMapper::makeEmbeddingDto($result);
-
-        return $dto;
-    }
 
     public function moderateContent(string $input): array
     {
