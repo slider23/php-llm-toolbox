@@ -45,7 +45,7 @@ class OpenaiClientTest extends TestCase
 
         try {
             $response = $client->request($messages);
-            $response->trap();
+//            $response->trap();
             $this->assertInstanceOf(LlmResponseDto::class, $response);
             $this->assertNotEquals('error', $response->status, "Response status should not be 'error'. Error message: " . $response->errorMessage);
             $this->assertNotEmpty($response->assistantContent, "Response content should not be empty.");
@@ -81,7 +81,7 @@ class OpenaiClientTest extends TestCase
 
         try {
             $response = $client->request($messages);
-            $response->trap();
+//            $response->trap();
             $this->assertInstanceOf(LlmResponseDto::class, $response);
             $this->assertNotEquals('error', $response->status, "Response status should not be 'error'. Error message: " . $response->errorMessage);
             $this->assertNotEmpty($response->assistantContent, "Response content should not be empty.");
@@ -116,14 +116,14 @@ class OpenaiClientTest extends TestCase
 
         try {
             $response = $client->request($messages);
-            $response->trap();
+//            $response->trap();
             $this->assertInstanceOf(LlmResponseDto::class, $response);
             $this->assertNotEquals('error', $response->status, "Response status should not be 'error'. Error message: " . $response->errorMessage);
             $this->assertNotEmpty($response->assistantContent, "Response content should not be empty.");
             
             // Verify it's valid JSON
             $decoded = json_decode($response->assistantContent, true);
-            trap($decoded);
+//            trap($decoded);
             $this->assertIsArray($decoded, "Response should be valid JSON");
             $this->assertArrayHasKey('name', $decoded);
             $this->assertArrayHasKey('country', $decoded);
@@ -142,7 +142,7 @@ class OpenaiClientTest extends TestCase
         $text = "This is a test sentence for embedding.";
         
         try {
-            $response = $client->createEmbedding($text);
+            $response = $client->embedding($text);
 //            trap($response);
             $this->assertInstanceOf(EmbeddingDto::class, $response);
             $this->assertNotEmpty($response->embedding, "Embedding should not be empty.");
@@ -163,8 +163,8 @@ class OpenaiClientTest extends TestCase
         $client = new OpenaiEmbeddingClient('text-embedding-3-small', $this->apiKey);
         $text = file_get_contents("tests/stubs/too_big_chunk_to_embedding.txt");
 
-        $response = $client->createEmbedding($text);
-        trap($response);
+        $response = $client->embedding($text);
+//        trap($response);
 
     }
 

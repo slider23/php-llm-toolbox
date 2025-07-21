@@ -32,7 +32,7 @@ class VoyageEmbeddingClientTest extends TestCase
         $text = "This is a test sentence for embedding generation.";
 
         try {
-            $response = $client->createEmbedding($text);
+            $response = $client->embedding($text);
 
             $this->assertInstanceOf(EmbeddingDto::class, $response);
             $this->assertEquals('success', $response->status);
@@ -64,7 +64,7 @@ class VoyageEmbeddingClientTest extends TestCase
         $text = "Machine learning is transforming how we process data.";
 
         try {
-            $response = $client->createEmbedding($text);
+            $response = $client->embedding($text);
             
             $this->assertInstanceOf(EmbeddingDto::class, $response);
             $this->assertEquals('success', $response->status);
@@ -89,7 +89,7 @@ class VoyageEmbeddingClientTest extends TestCase
         $text = "Lightweight embedding model for fast processing.";
 
         try {
-            $response = $client->createEmbedding($text);
+            $response = $client->embedding($text);
             
             $this->assertInstanceOf(EmbeddingDto::class, $response);
             $this->assertEquals('success', $response->status);
@@ -111,7 +111,7 @@ class VoyageEmbeddingClientTest extends TestCase
         $text = "What is the capital of France?";
 
         try {
-            $response = $client->createEmbedding($text, 'query');
+            $response = $client->embedding($text, 'query');
             
             $this->assertInstanceOf(EmbeddingDto::class, $response);
             $this->assertEquals('success', $response->status);
@@ -131,7 +131,7 @@ class VoyageEmbeddingClientTest extends TestCase
         $text = "Paris is the capital and most populous city of France. It is located in northern central France.";
 
         try {
-            $response = $client->createEmbedding($text, 'document');
+            $response = $client->embedding($text, 'document');
             
             $this->assertInstanceOf(EmbeddingDto::class, $response);
             $this->assertEquals('success', $response->status);
@@ -152,7 +152,7 @@ class VoyageEmbeddingClientTest extends TestCase
         $text = "This text will use the client's default input type.";
 
         try {
-            $response = $client->createEmbedding($text); // No input type parameter
+            $response = $client->embedding($text); // No input type parameter
             
             $this->assertInstanceOf(EmbeddingDto::class, $response);
             $this->assertEquals('success', $response->status);
@@ -173,7 +173,7 @@ class VoyageEmbeddingClientTest extends TestCase
         $text = "Custom dimension embedding test.";
 
         try {
-            $response = $client->createEmbedding($text);
+            $response = $client->embedding($text);
             
             $this->assertInstanceOf(EmbeddingDto::class, $response);
             $this->assertEquals('success', $response->status);
@@ -195,7 +195,7 @@ class VoyageEmbeddingClientTest extends TestCase
         $text = "Short text for truncation test.";
 
         try {
-            $response = $client->createEmbedding($text);
+            $response = $client->embedding($text);
             
             $this->assertInstanceOf(EmbeddingDto::class, $response);
             $this->assertEquals('success', $response->status);
@@ -215,7 +215,7 @@ class VoyageEmbeddingClientTest extends TestCase
         $code = "function calculateSum(a, b) { return a + b; }";
 
         try {
-            $response = $client->createEmbedding($code);
+            $response = $client->embedding($code);
             
             $this->assertInstanceOf(EmbeddingDto::class, $response);
             $this->assertEquals('success', $response->status);
@@ -237,7 +237,7 @@ class VoyageEmbeddingClientTest extends TestCase
         $text = "";
 
         try {
-            $response = $client->createEmbedding($text);
+            $response = $client->embedding($text);
             
             // Voyage should handle empty input gracefully or return an error
             if ($response->status === 'error') {
@@ -262,7 +262,7 @@ class VoyageEmbeddingClientTest extends TestCase
         $text = str_repeat("This is a very long sentence that will be repeated many times to test the embedding API with large inputs. ", 1000);
 
         try {
-            $response = $client->createEmbedding($text);
+            $response = $client->embedding($text);
             
             // Should succeed with truncation enabled
             $this->assertInstanceOf(EmbeddingDto::class, $response);
@@ -285,7 +285,7 @@ class VoyageEmbeddingClientTest extends TestCase
         $text = "Cost calculation test for voyage embeddings.";
 
         try {
-            $response = $client->createEmbedding($text);
+            $response = $client->embedding($text);
             
             $this->assertInstanceOf(EmbeddingDto::class, $response);
             $this->assertEquals('success', $response->status);

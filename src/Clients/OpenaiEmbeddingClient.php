@@ -21,7 +21,7 @@ class OpenaiEmbeddingClient
         $this->apiKey = $apiKey;
     }
 
-    public function createEmbedding(string $input): EmbeddingDto
+    public function embedding(string $input): EmbeddingDto
     {
         $body = [
             'model' => $this->model,

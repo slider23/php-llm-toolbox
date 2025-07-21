@@ -19,7 +19,7 @@ class VoyageEmbeddingClientTest extends TestCase
         $this->assertFalse($client->debug);
         $this->assertNull($client->input_type);
         $this->assertTrue($client->truncation);
-        $this->assertNull($client->output_dimensions);
+        $this->assertNull($client->output_dimension);
         $this->assertEquals('float', $client->output_dtype);
         $this->assertNull($client->encoding_format);
     }
@@ -206,7 +206,7 @@ class VoyageEmbeddingClientTest extends TestCase
         
         // Test when no input_type is set and none passed to method
         $client->input_type = null;
-        $reflection = new \ReflectionMethod($client, 'createEmbedding');
+        $reflection = new \ReflectionMethod($client, 'embedding');
         $reflection->setAccessible(true);
         
         // We can't easily test the actual HTTP call without integration tests,
@@ -232,7 +232,7 @@ class VoyageEmbeddingClientTest extends TestCase
         $this->assertFalse($client->debug);
         $this->assertNull($client->input_type);
         $this->assertTrue($client->truncation);
-        $this->assertNull($client->output_dimensions);
+        $this->assertNull($client->output_dimension);
         $this->assertEquals('float', $client->output_dtype);
         $this->assertNull($client->encoding_format);
     }

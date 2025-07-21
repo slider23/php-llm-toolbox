@@ -7,9 +7,12 @@ use Slider23\PhpLlmToolbox\Dto\Mappers\OpenaiResponseMapper;
 use Slider23\PhpLlmToolbox\Dto\Mappers\VoyageResponseMapper;
 use Slider23\PhpLlmToolbox\Exceptions\LlmRequestException;
 use Slider23\PhpLlmToolbox\Exceptions\WrongJsonException;
+use Slider23\PhpLlmToolbox\Traits\ClientTrait;
 
 class VoyageEmbeddingClient
 {
+    use ClientTrait;
+
     public string $model;
     public string $apiKey;
     public int $timeout = 60; // Default timeout in seconds
@@ -29,7 +32,7 @@ class VoyageEmbeddingClient
         $this->apiKey = $apiKey;
     }
 
-    public function createEmbedding(string $input, ?string $inputType = null): EmbeddingDto
+    public function embedding(string $input, ?string $inputType = null): EmbeddingDto
     {
         if(!$inputType AND $this->input_type){
             $inputType = $this->input_type;
@@ -72,30 +75,5 @@ class VoyageEmbeddingClient
         $dto = VoyageResponseMapper::makeEmbeddingDto($result);
 
         return $dto;
-    }
-
-    public function throwIfError($curl, ?array $response = null): void
-    {
-        if(curl_errno($curl)) {
-            $error = curl_error($curl);
-            $errorCode = curl_errno($curl);
-            throw new LlmRequestException("CURL Error: ".$error, $errorCode);
-        }
-        if(!$response) {
-            throw new LlmRequestException("CURL Error: empty answer from vendor");
-        }
-        if (isset($response['error'])) {
-            throw new LlmRequestException($response['error']['message'] ?? 'Unknown error from vendor', (int)($response['error']['code'] ?? 0));
-        }
-
-    }
-
-    public function jsonDecode(string $json)
-    {
-        try{
-            return json_decode($json, true,  JSON_THROW_ON_ERROR);
-        }catch (\JsonException $e){
-            throw new WrongJsonException($e);
-        }
     }
 }

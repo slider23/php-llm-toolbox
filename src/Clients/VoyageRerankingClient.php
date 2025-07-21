@@ -23,7 +23,7 @@ class VoyageRerankingClient
         $this->apiKey = $apiKey;
     }
 
-    public function rerank(string $query, array $documents): RerankingDto
+    public function reranking(string $query, array $documents): RerankingDto
     {
         $body = [
             'model' => $this->model,

@@ -258,10 +258,10 @@ class VoyageRerankingClientTest extends TestCase
         $client = new VoyageRerankingClient('rerank-2', 'test-api-key');
         
         // Verify that the rerank method exists
-        $this->assertTrue(method_exists($client, 'rerank'));
+        $this->assertTrue(method_exists($client, 'reranking'));
         
         // Verify method signature through reflection
-        $reflection = new \ReflectionMethod($client, 'rerank');
+        $reflection = new \ReflectionMethod($client, 'reranking');
         $parameters = $reflection->getParameters();
         
         $this->assertCount(2, $parameters);
@@ -286,7 +286,7 @@ class VoyageRerankingClientTest extends TestCase
         
         // Use reflection to check if the URL is correctly set in the method
         $reflection = new \ReflectionClass($client);
-        $method = $reflection->getMethod('rerank');
+        $method = $reflection->getMethod('reranking');
         $method->setAccessible(true);
         
         // We expect the method to exist and be callable
@@ -318,7 +318,7 @@ class VoyageRerankingClientTest extends TestCase
         // We expect this to fail with an exception due to invalid API key,
         // but the method signature should be correct
         try {
-            $client->rerank($query, $documents);
+            $client->reranking($query, $documents);
         } catch (LlmRequestException $e) {
             // Expected for invalid API key
             $this->assertStringContainsString('CURL Error', $e->getMessage());

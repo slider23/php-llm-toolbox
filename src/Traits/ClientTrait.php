@@ -26,10 +26,11 @@ trait ClientTrait
 
     public function jsonDecode(string $json)
     {
-        try{
-            return json_decode($json, true,  JSON_THROW_ON_ERROR);
+        try {
+            $result = json_decode($json, true, 512, JSON_THROW_ON_ERROR);
         }catch (\JsonException $e){
             throw new WrongJsonException($e);
         }
+        return $result;
     }
 }

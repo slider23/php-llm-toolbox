@@ -38,7 +38,7 @@ class VoyageRerankingClientTest extends TestCase
         ];
 
         try {
-            $response = $client->rerank($query, $documents);
+            $response = $client->reranking($query, $documents);
 
             $this->assertInstanceOf(RerankingDto::class, $response);
             $this->assertEquals('success', $response->status);
@@ -91,7 +91,7 @@ class VoyageRerankingClientTest extends TestCase
         ];
 
         try {
-            $response = $client->rerank($query, $documents);
+            $response = $client->reranking($query, $documents);
 
             $this->assertInstanceOf(RerankingDto::class, $response);
             $this->assertEquals('success', $response->status);
@@ -125,7 +125,7 @@ class VoyageRerankingClientTest extends TestCase
         ];
 
         try {
-            $response = $client->rerank($query, $documents);
+            $response = $client->reranking($query, $documents);
 
             $this->assertInstanceOf(RerankingDto::class, $response);
             $this->assertEquals('success', $response->status);
@@ -163,7 +163,7 @@ class VoyageRerankingClientTest extends TestCase
         ];
 
         try {
-            $response = $client->rerank($query, $documents);
+            $response = $client->reranking($query, $documents);
 
             $this->assertInstanceOf(RerankingDto::class, $response);
             $this->assertEquals('success', $response->status);
@@ -189,7 +189,7 @@ class VoyageRerankingClientTest extends TestCase
         ];
 
         try {
-            $response = $client->rerank($query, $documents);
+            $response = $client->reranking($query, $documents);
 
             $this->assertInstanceOf(RerankingDto::class, $response);
             $this->assertEquals('success', $response->status);
@@ -211,7 +211,7 @@ class VoyageRerankingClientTest extends TestCase
         ];
 
         try {
-            $response = $client->rerank($query, $documents);
+            $response = $client->reranking($query, $documents);
 
             $this->assertInstanceOf(RerankingDto::class, $response);
             $this->assertEquals('success', $response->status);
@@ -238,7 +238,7 @@ class VoyageRerankingClientTest extends TestCase
         ];
 
         try {
-            $response = $client->rerank($query, $documents);
+            $response = $client->reranking($query, $documents);
 
             $this->assertInstanceOf(RerankingDto::class, $response);
             $this->assertEquals('success', $response->status);
@@ -283,8 +283,8 @@ class VoyageRerankingClientTest extends TestCase
         ];
 
         try {
-            $response = $client->rerank($query, $documents);
-            trap($response);
+            $response = $client->reranking($query, $documents);
+//            trap($response);
             $this->assertInstanceOf(RerankingDto::class, $response);
             $this->assertEquals('success', $response->status);
             $this->assertIsArray($response->data);
@@ -327,7 +327,7 @@ class VoyageRerankingClientTest extends TestCase
         ];
 
         try {
-            $response = $client->rerank($query, $documents);
+            $response = $client->reranking($query, $documents);
 
             $this->assertInstanceOf(RerankingDto::class, $response);
             $this->assertEquals('success', $response->status);
@@ -358,7 +358,7 @@ class VoyageRerankingClientTest extends TestCase
         ];
 
         try {
-            $response = $client->rerank($longQuery, $documents);
+            $response = $client->reranking($longQuery, $documents);
 
             $this->assertInstanceOf(RerankingDto::class, $response);
             $this->assertEquals('success', $response->status);

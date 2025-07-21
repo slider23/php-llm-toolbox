@@ -108,7 +108,7 @@ class OpenrouterClientToolsTest extends TestCase
 
         try {
             $response = $client->request($messages);
-            $response->trap();
+//            $response->trap();
             $this->assertInstanceOf(LlmResponseDto::class, $response);
             $this->assertNotEquals('error', $response->status, "Response status should not be 'error'. Error message: " . $response->errorMessage);
 //            $this->assertNotEmpty($response->assistantContent, "Response content should not be empty.");
