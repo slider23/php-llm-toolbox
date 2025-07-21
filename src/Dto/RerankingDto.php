@@ -4,7 +4,7 @@ namespace Slider23\PhpLlmToolbox\Dto;
 
 class RerankingDto
 {
-    public string $model;
+    public ?string $model = null;
     public string $vendor = 'voyage';
     public ?string $query = null;
     /**

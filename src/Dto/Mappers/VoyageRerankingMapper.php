@@ -20,6 +20,10 @@ class VoyageRerankingMapper
         if (isset($responseArray['error'])) {
             $dto->status = "error";
             $dto->errorMessage = $responseArray['error']['message'] ?? null;
+            $dto->model = null;
+            $dto->data = null;
+            $dto->tokens = null;
+            $dto->cost = null;
             return $dto;
         }
 

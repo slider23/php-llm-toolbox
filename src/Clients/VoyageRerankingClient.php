@@ -28,7 +28,10 @@ class VoyageRerankingClient
         $body = [
             'model' => $this->model,
             'documents' => $documents,
-            'query' => $query
+            'query' => $query,
+            'top_k' => $this->top_k,
+            'return_documents' => $this->return_documents,
+            'truncation' => $this->truncation
         ];
 
         $headers = [
@@ -38,7 +41,7 @@ class VoyageRerankingClient
 
         $curl = curl_init();
         curl_setopt_array($curl, [
-            CURLOPT_URL => 'https://api.voyage.com/v1/rerank',
+            CURLOPT_URL => 'https://api.voyageai.com/v1/rerank',
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_POST => true,
             CURLOPT_HTTPHEADER => $headers,
