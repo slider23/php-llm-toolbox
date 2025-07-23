@@ -9,8 +9,8 @@ use JsonException;
 
 final class WrongJsonException extends Exception
 {
-    public function __construct(JsonException $exception)
+    public function __construct(JsonException $exception, string $sourceJson = '')
     {
-        parent::__construct($exception->getMessage(), $exception->getCode(), $exception);
+        parent::__construct($exception->getMessage()." Source: $sourceJson", $exception->getCode(), $exception);
     }
 }
