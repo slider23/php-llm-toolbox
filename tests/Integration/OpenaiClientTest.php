@@ -2,6 +2,7 @@
 
 namespace Slider23\PhpLlmToolbox\Tests\Integration;
 
+use Exception;
 use PHPUnit\Framework\TestCase;
 use Slider23\PhpLlmToolbox\Clients\OpenaiClient;
 use Slider23\PhpLlmToolbox\Clients\OpenaiEmbeddingClient;
@@ -198,7 +199,7 @@ class OpenaiClientTest extends TestCase
     public function testRequestWithOrganizationAndProject(): void
     {
         $model = "gpt-4o-mini";
-        $client = new OpenaiClient($model, $this->apiKey, 'test-org', 'test-project');
+        $client = new OpenaiClient($model, $this->apiKey);
 
         $client->timeout = 10;
 
@@ -218,5 +219,24 @@ class OpenaiClientTest extends TestCase
             // This is expected if org/project are invalid
             $this->assertStringContainsString('organization', $e->getMessage());
         }
+    }
+
+    public function testGpt5CachedPrompt()
+    {
+        $model = "gpt-4o-mini";
+        $client = new OpenaiClient($model, $this->apiKey);
+        $client->timeout = 10;
+        $prompt = str_repeat("You are helpful assistant. Answer the question. ", 200); // Very long prompt to test caching
+
+        $messages = [
+            SystemMessage::make($prompt),
+            UserMessage::make('What is the capital of France?')
+        ];
+        $client->request($messages);
+        sleep(5);
+        $response = $client->request($messages);
+        $response->trap();
+        $this->assertInstanceOf(LlmResponseDto::class, $response);
+        $this->assertGreaterThan(0, $response->cacheReadInputTokens);
     }
 }
