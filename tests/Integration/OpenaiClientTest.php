@@ -235,7 +235,7 @@ class OpenaiClientTest extends TestCase
         $client->request($messages);
         sleep(5);
         $response = $client->request($messages);
-        $response->trap();
+//        $response->trap();
         $this->assertInstanceOf(LlmResponseDto::class, $response);
         $this->assertGreaterThan(0, $response->cacheReadInputTokens);
     }

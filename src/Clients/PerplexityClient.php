@@ -5,9 +5,11 @@ namespace Slider23\PhpLlmToolbox\Clients;
 use Slider23\PhpLlmToolbox\Dto\LlmResponseDto;
 use Slider23\PhpLlmToolbox\Dto\Mappers\PerplexityResponseMapper;
 use Slider23\PhpLlmToolbox\Exceptions\LlmVendorException;
+use Slider23\PhpLlmToolbox\Traits\ProxyTrait;
 
 class PerplexityClient extends LlmVendorClient implements LlmVendorClientInterface
 {
+    use ProxyTrait;
     public string $apiKey;
     public string $model;
     public int $timeout = 180; // seconds
@@ -85,6 +87,7 @@ class PerplexityClient extends LlmVendorClient implements LlmVendorClientInterfa
                 'Authorization: Bearer ' . $this->apiKey,
             ],
         ]);
+        $this->applyProxy($curl);
         $response = curl_exec($curl);
         curl_close($curl);
 

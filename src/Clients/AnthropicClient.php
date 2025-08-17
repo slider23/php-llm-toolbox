@@ -9,10 +9,12 @@ use Slider23\PhpLlmToolbox\Exceptions\WrongJsonException;
 use Slider23\PhpLlmToolbox\Helper;
 use Slider23\PhpLlmToolbox\Tools\ToolAwareTrait;
 use Slider23\PhpLlmToolbox\Tools\AnthropicToolAdapter;
+use Slider23\PhpLlmToolbox\Traits\ProxyTrait;
 
 final class AnthropicClient extends LlmVendorClient implements LlmVendorClientInterface
 {
     use ToolAwareTrait;
+    use ProxyTrait;
     public string $model;
 
     private string $apiKey;
@@ -115,6 +117,7 @@ final class AnthropicClient extends LlmVendorClient implements LlmVendorClientIn
             CURLOPT_POSTFIELDS => json_encode($this->body),
             CURLOPT_TIMEOUT => $this->timeout
         ]);
+        $this->applyProxy($curl);
         if ($this->debug) {
             curl_setopt($curl, CURLOPT_VERBOSE, true);
         }
@@ -166,6 +169,7 @@ final class AnthropicClient extends LlmVendorClient implements LlmVendorClientIn
             CURLOPT_POSTFIELDS => json_encode(['requests' => $batchRequests]),
             CURLOPT_TIMEOUT => $this->timeout
         ]);
+        $this->applyProxy($curl);
 
         if ($this->debug) {
             curl_setopt($curl, CURLOPT_VERBOSE, true);
@@ -193,6 +197,7 @@ final class AnthropicClient extends LlmVendorClient implements LlmVendorClientIn
             CURLOPT_TIMEOUT => $this->timeout,
             CURLOPT_VERBOSE => $this->debug,
         ]);
+        $this->applyProxy($curl);
         $response = curl_exec($curl);
         curl_close($curl);
 
@@ -215,6 +220,7 @@ final class AnthropicClient extends LlmVendorClient implements LlmVendorClientIn
             ],
             CURLOPT_TIMEOUT => $this->timeout,
         ]);
+        $this->applyProxy($curl);
         $response = curl_exec($curl);
         curl_close($curl);
 
@@ -239,6 +245,7 @@ final class AnthropicClient extends LlmVendorClient implements LlmVendorClientIn
             ],
             CURLOPT_TIMEOUT => $this->timeout,
         ]);
+        $this->applyProxy($curl);
         curl_exec($curl);
         curl_close($curl);
 
@@ -267,6 +274,7 @@ final class AnthropicClient extends LlmVendorClient implements LlmVendorClientIn
             CURLOPT_POSTFIELDS => json_encode($body),
             CURLOPT_TIMEOUT => $this->timeout
         ]);
+        $this->applyProxy($curl);
 
         if ($this->debug) {
             curl_setopt($curl, CURLOPT_VERBOSE, true);

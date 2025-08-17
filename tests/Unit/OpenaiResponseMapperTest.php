@@ -207,8 +207,8 @@ class OpenaiResponseMapperTest extends TestCase
         $this->assertGreaterThan(0, $dto->cost);
         
         // Calculate expected cost for gpt-4o-mini
-        $inputCost = 1000 * (0.150 / 1_000_000);
-        $outputCost = 500 * (0.600 / 1_000_000);
+        $inputCost = 1000 * (0.15 / 1_000_000);
+        $outputCost = 500 * (0.60 / 1_000_000);
         $expectedCost = $inputCost + $outputCost;
         
         $this->assertEquals($expectedCost, $dto->cost, '', 0.000001);

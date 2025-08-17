@@ -8,10 +8,12 @@ use Slider23\PhpLlmToolbox\Dto\Mappers\VoyageResponseMapper;
 use Slider23\PhpLlmToolbox\Exceptions\LlmRequestException;
 use Slider23\PhpLlmToolbox\Exceptions\WrongJsonException;
 use Slider23\PhpLlmToolbox\Traits\ClientTrait;
+use Slider23\PhpLlmToolbox\Traits\ProxyTrait;
 
 class VoyageEmbeddingClient
 {
     use ClientTrait;
+    use ProxyTrait;
 
     public string $model;
     public string $apiKey;
@@ -61,11 +63,7 @@ class VoyageEmbeddingClient
             CURLOPT_POSTFIELDS => json_encode($body),
             CURLOPT_TIMEOUT => $this->timeout
         ]);
-
-        if ($this->debug) {
-            curl_setopt($curl, CURLOPT_VERBOSE, true);
-        }
-
+        $this->applyProxy($curl);
         $response = curl_exec($curl);
         curl_close($curl);
 

@@ -248,17 +248,27 @@ class OpenaiResponseMapper
 
             // Calculate cost based on model pricing
             $prices = null;
-            foreach (self::$pricesByModel as $key => $value) {
-                if (strpos($dto->model, $key) !== false) {
-                    $prices = $value;
-                    break;
+
+            // --- Normalize model name for pricing lookup ---
+            $normalizedModel = $dto->model;
+            if ($normalizedModel) {
+                if (!isset(self::$pricesByModel[$normalizedModel])) {
+                    // Try stripping trailing date suffixes: -YYYY, -YYYY-MM, -YYYY-MM-DD
+                    $candidate = preg_replace('/-(20\\d{2})(-\\d{2}){0,2}$/', '', $normalizedModel);
+                    if ($candidate !== $normalizedModel && isset(self::$pricesByModel[$candidate])) {
+                        $normalizedModel = $candidate;
+                    }
                 }
             }
-            if ($prices && $dto->inputTokens && $dto->outputTokens) {
-                $dto->cost = $dto->inputTokens * $prices['inputTokens'] +
-                    $dto->cacheCreationInputTokens * ($prices['cacheCreationInputTokens'] ?? 0) +
-                    $dto->cacheReadInputTokens * ($prices['cacheReadInputTokens'] ?? 0) +
-                    $dto->outputTokens * $prices['outputTokens'];
+
+            $prices = $normalizedModel ? (self::$pricesByModel[$normalizedModel] ?? null) : null;
+
+            // Стоимость считаем даже если нет outputTokens (может быть только ввод / кэш)
+            if ($prices) {
+                $costInputCreation = ($prices['cacheCreationInputTokens'] ?? $prices['inputTokens'] ?? 0) * ($dto->cacheCreationInputTokens ?? 0);
+                $costInputCached   = ($prices['cacheReadInputTokens'] ?? 0) * ($dto->cacheReadInputTokens ?? 0);
+                $costOutput        = ($prices['outputTokens'] ?? 0) * ($dto->outputTokens ?? 0);
+                $dto->cost = $costInputCreation + $costInputCached + $costOutput;
             }
         }
 

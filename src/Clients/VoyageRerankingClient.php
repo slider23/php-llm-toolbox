@@ -4,10 +4,12 @@ namespace Slider23\PhpLlmToolbox\Clients;
 
 use Slider23\PhpLlmToolbox\Dto\Mappers\VoyageRerankingMapper;
 use Slider23\PhpLlmToolbox\Dto\RerankingDto;
+use Slider23\PhpLlmToolbox\Traits\ProxyTrait;
 
 class VoyageRerankingClient
 {
     use \Slider23\PhpLlmToolbox\Traits\ClientTrait;
+    use ProxyTrait;
 
     public string $model;
     public string $apiKey;
@@ -48,7 +50,7 @@ class VoyageRerankingClient
             CURLOPT_POSTFIELDS => json_encode($body),
             CURLOPT_TIMEOUT => 60 // Default timeout in seconds
         ]);
-
+        $this->applyProxy($curl);
         $response = curl_exec($curl);
         curl_close($curl);
 

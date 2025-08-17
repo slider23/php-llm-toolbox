@@ -6,10 +6,12 @@ use Slider23\PhpLlmToolbox\Dto\LlmResponseDto;
 use Slider23\PhpLlmToolbox\Dto\Mappers\OpenrouterResponseMapper;
 use Slider23\PhpLlmToolbox\Exceptions\LlmVendorException;
 use Slider23\PhpLlmToolbox\Tools\ToolAwareTrait;
+use Slider23\PhpLlmToolbox\Traits\ProxyTrait;
 
 class OpenrouterClient extends LlmVendorClient implements LlmVendorClientInterface
 {
     use ToolAwareTrait;
+    use ProxyTrait;
     public string $model;
     public string $apiKey;
 
@@ -95,6 +97,7 @@ class OpenrouterClient extends LlmVendorClient implements LlmVendorClientInterfa
             CURLOPT_POSTFIELDS => json_encode($this->body),
             CURLOPT_TIMEOUT => $this->timeout
         ]);
+        $this->applyProxy($curl);
         $response = curl_exec($curl);
         curl_close($curl);
 
@@ -122,9 +125,7 @@ class OpenrouterClient extends LlmVendorClient implements LlmVendorClientInterfa
             CURLOPT_TIMEOUT => $this->timeout
 
         ]);
-        if($this->debug) {
-            curl_setopt($curl, CURLOPT_VERBOSE, true);
-        }
+        $this->applyProxy($curl);
         $response = curl_exec($curl);
         curl_close($curl);
 

@@ -5,9 +5,12 @@ namespace Slider23\PhpLlmToolbox\Clients;
 use Slider23\PhpLlmToolbox\Dto\LlmResponseDto;
 use Slider23\PhpLlmToolbox\Dto\Mappers\DeepseekResponseMapper;
 use Slider23\PhpLlmToolbox\Exceptions\LlmVendorException;
+use Slider23\PhpLlmToolbox\Traits\ProxyTrait;
 
 final class DeepseekClient extends LlmVendorClient implements LlmVendorClientInterface
 {
+    use ProxyTrait;
+
     public string $model;
 
     public string $apiKey;
@@ -68,6 +71,7 @@ final class DeepseekClient extends LlmVendorClient implements LlmVendorClientInt
                 'Authorization: Bearer ' . $this->apiKey,
             ],
         ]);
+        $this->applyProxy($curl);
         $response = curl_exec($curl);
         curl_close($curl);
 

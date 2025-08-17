@@ -7,11 +7,13 @@ use Slider23\PhpLlmToolbox\Dto\LlmResponseDto;
 use Slider23\PhpLlmToolbox\Dto\Mappers\OpenaiResponseMapper;
 use Slider23\PhpLlmToolbox\Exceptions\LlmVendorException;
 use Slider23\PhpLlmToolbox\Tools\ToolAwareTrait;
+use Slider23\PhpLlmToolbox\Traits\ProxyTrait;
 
 class OpenaiClient extends LlmVendorClient implements LlmVendorClientInterface
 {
     use ToolAwareTrait;
-    
+    use ProxyTrait;
+
     public string $model;
     public string $apiKey;
     public ?string $organization = null;
@@ -106,7 +108,8 @@ class OpenaiClient extends LlmVendorClient implements LlmVendorClientInterface
             CURLOPT_POSTFIELDS => json_encode($this->body),
             CURLOPT_TIMEOUT => $this->timeout
         ]);
-        
+        $this->applyProxy($curl);
+
         if ($this->debug) {
             curl_setopt($curl, CURLOPT_VERBOSE, true);
         }
@@ -155,6 +158,7 @@ class OpenaiClient extends LlmVendorClient implements LlmVendorClientInterface
             CURLOPT_POSTFIELDS => json_encode($body),
             CURLOPT_TIMEOUT => $this->timeout
         ]);
+        $this->applyProxy($curl);
 
         if ($this->debug) {
             curl_setopt($curl, CURLOPT_VERBOSE, true);
