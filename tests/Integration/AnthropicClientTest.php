@@ -4,6 +4,7 @@ namespace Slider23\PhpLlmToolbox\Tests\Integration;
 
 use PHPUnit\Framework\TestCase;
 use Slider23\PhpLlmToolbox\Clients\AnthropicClient;
+use Slider23\PhpLlmToolbox\Dto\BatchInfoDto;
 use Slider23\PhpLlmToolbox\Dto\LlmResponseDto;
 use Slider23\PhpLlmToolbox\Exceptions\LlmVendorException;
 use Slider23\PhpLlmToolbox\Messages\SystemMessage;
@@ -103,4 +104,66 @@ class AnthropicClientTest extends TestCase
         $this->assertIsInt($tokenCount);
         $this->assertGreaterThan(0, $tokenCount);
     }
+
+    public function testCreateBatchAnthropicClient(): void
+    {
+        $model = "claude-3-5-haiku-20241022";
+        $client = new AnthropicClient($model, $this->apiKey);
+
+        $requests = [
+            [
+                SystemMessage::make('Be precise and concise.'),
+                UserMessage::make('What is the capital of France?')
+            ],
+            [
+                SystemMessage::make('Be precise and concise.'),
+                UserMessage::make('What is the capital of Italy?')
+            ],
+        ];
+        $randomId = uniqid();
+
+        $batchRequests = [];
+        foreach ($requests as $i => $request) {
+            $batchRequests[] = $client->makeBatchRequest($request, "batch_{$randomId}_{$i}");
+        }
+        $batchId = $client->createMessageBatch($batchRequests);
+
+        $this->assertNotEmpty($batchId, "Batch ID should not be empty.");
+        $this->assertIsString($batchId);
+//        dump("Batch ID: $batchId");
+        sleep(3);
+
+        $response = $client->retrieveMessageBatchInfo($batchId);
+        $this->assertInstanceOf(BatchInfoDto::class, $response, "Batch info response should be an instance of BatchInfoDto.");
+//        dump("Batch info response:");
+//        dump($response);
+
+        $response = $client->cancelBatch($batchId);
+        $this->assertInstanceOf(BatchInfoDto::class, $response, "Batch cancel response should be an instance of BatchInfoDto.");
+//        dump("Batch cancel response:");
+//        dump($response);
+
+        $response = $client->retrieveMessageBatchInfo($batchId);
+//        dump("Batch after cancel response:");
+//        dump($response);
+    }
+
+
+    public function testRetrieveResultsAnthropicBatch()
+    {
+        $model = "claude-3-5-haiku-20241022";
+        $client = new AnthropicClient($model, $this->apiKey);
+        $batchId = "msgbatch_01EEfjEzHBcbqCoajnfKAAtk"; // Example batch ID, replace with a valid one
+
+        $response = $client->retrieveMessageBatchResults($batchId);
+//        dump("Batch results response:");
+//        dump($response);
+        $this->assertIsArray($response, "Batch results should be an array.");
+        $this->assertNotEmpty($response, "Batch results should not be empty.");
+        foreach ($response as $customId => $dto) {
+            $this->assertInstanceOf(LlmResponseDto::class, $dto, "Each result should be an instance of LlmResponseDto.");
+            $this->assertEquals($customId, $dto->customId);
+        }
+    }
+
 }

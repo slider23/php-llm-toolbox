@@ -7,6 +7,7 @@ use Slider23\PhpLlmToolbox\Exceptions\LlmVendorException;
 class LlmResponseDto
 {
     public ?string $id = null;
+    public ?string $customId = null;
     public ?string $model = null;
     public ?string $vendor = null;
     public ?string $assistantContent = null;

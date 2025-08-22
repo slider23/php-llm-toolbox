@@ -2,6 +2,7 @@
 
 namespace Slider23\PhpLlmToolbox\Dto\Mappers;
 
+use Slider23\PhpLlmToolbox\Dto\BatchInfoDto;
 use Slider23\PhpLlmToolbox\Dto\LlmResponseDto;
 
 class AnthropicResponseMapper
@@ -105,9 +106,31 @@ class AnthropicResponseMapper
                     + $dto->cacheReadInputTokens * $prices['cacheReadInputTokens']
                     + $dto->outputTokens * $prices['outputTokens'];
             }
+            if(isset($responseArray['usage']['service_tier']) && $responseArray['usage']['service_tier'] === 'batch'){
+                $dto->cost = $dto->cost / 2; // Adjust cost for batch requests
+            }
         }
         
         $dto->_extractThinking();
+        return $dto;
+    }
+
+    public static function makeBatchInfoDto(array $result)
+    {
+        $dto = new BatchInfoDto();
+        $dto->vendor = 'anthropic';
+        $dto->id = $result['id'] ?? null;
+        $dto->status = $result['processing_status'] ?? null;
+        $dto->type = $result['type'] ?? "message_batch";
+        $dto->createdAt = $result['created_at'] ?? null;
+        $dto->endedAt = $result['ended_at'] ?? null;
+        $dto->expiresAt = $result['expires_at'] ?? null;
+        $dto->cancelInitiatedAt = $result['cancel_initiated_at'] ?? null;
+        $dto->processing = $result['request_counts']['processing'] ?? 0;
+        $dto->succeeded = $result['request_counts']['succeeded'] ?? 0;
+        $dto->errored = $result['request_counts']['errored'] ?? 0;
+        $dto->canceled = $result['request_counts']['canceled'] ?? 0;
+        $dto->expired = $result['request_counts']['expired'] ?? 0;
         return $dto;
     }
 }

@@ -2,6 +2,7 @@
 
 namespace Slider23\PhpLlmToolbox\Clients;
 
+use Slider23\PhpLlmToolbox\Dto\BatchInfoDto;
 use Slider23\PhpLlmToolbox\Dto\LlmResponseDto;
 use Slider23\PhpLlmToolbox\Dto\Mappers\AnthropicResponseMapper;
 use Slider23\PhpLlmToolbox\Exceptions\LlmVendorException;
@@ -84,6 +85,29 @@ final class AnthropicClient extends LlmVendorClient implements LlmVendorClientIn
         }
     }
 
+    private function _extractSystemMessage(array $messages): array
+    {
+        $systemArray = [];
+        $filteredMessages = [];
+        foreach($messages as $message) {
+            if($message['role'] === 'system') {
+                $systemArray = $message['content'];
+                if(! is_array($systemArray)) {
+                    $systemArray = [
+                        'type' => 'text',
+                        'text' => $systemArray,
+                    ];
+                }
+                if(isset($systemArray['type'])) {
+                    $systemArray = [$systemArray]; // Anthropic expects system message as an array of content - not {'type': 'text', 'text': '...'} but [{'type': 'text', 'text': '...'}]
+                }
+            }else{
+                $filteredMessages[] = $message;
+            }
+        }
+        return [$systemArray, $filteredMessages];
+    }
+
     private function _prepareMessagesArray(array $messages)
     {
         $preparedMessages = [];
@@ -155,6 +179,16 @@ final class AnthropicClient extends LlmVendorClient implements LlmVendorClientIn
 
     public function createMessageBatch(array $batchRequests): ?string
     {
+        if(empty($batchRequests)) {
+            throw new \InvalidArgumentException('Batch requests cannot be empty.');
+        }
+        if(count($batchRequests) > 100_000) {
+            throw new \InvalidArgumentException('Batch requests cannot exceed 100 items.');
+        }
+        if(isset($batchRequests['custom_id'])) {
+            $batchRequests = [$batchRequests]; // Anthropic expects batch requests as an array of requests
+        }
+
         $curl = curl_init();
 
         curl_setopt_array($curl, [
@@ -183,7 +217,22 @@ final class AnthropicClient extends LlmVendorClient implements LlmVendorClientIn
         return $result['id'] ?? null;
     }
 
-    public function retrieveMessageBatchInfo(string $batchId): array
+    public function makeBatchRequest(array $messages, string $customId): array
+    {
+        [$prompt, $messages] = $this->_extractSystemMessage($messages);
+        return [
+            'custom_id' => $customId,
+            'params' => [
+                'model' => $this->model,
+                'max_tokens' => $this->max_tokens,
+                'temperature' => $this->temperature,
+                'system' => $prompt,
+                'messages' => $messages
+            ]
+        ];
+    }
+
+    public function retrieveMessageBatchInfo(string $batchId): BatchInfoDto
     {
         $curl = curl_init();
         curl_setopt_array($curl, [
@@ -204,14 +253,22 @@ final class AnthropicClient extends LlmVendorClient implements LlmVendorClientIn
         $result = $this->jsonDecode($response);
         $this->throwIfError($curl, $result);
 
-        return $result;
+        $dto = AnthropicResponseMapper::makeBatchInfoDto($result);
+
+        return $dto;
     }
 
-    public function retrieveMessageBatchResults(string $messageBatchId)
+    /**
+     * @param string $batchId
+     * @return array<LlmResponseDto>|null
+     * @throws LlmVendorException
+     * @throws WrongJsonException
+     */
+    public function retrieveMessageBatchResults(string $batchId): ?array
     {
         $curl = curl_init();
         curl_setopt_array($curl, [
-            CURLOPT_URL => "https://api.anthropic.com/v1/messages/batches/$messageBatchId/results",
+            CURLOPT_URL => "https://api.anthropic.com/v1/messages/batches/$batchId/results",
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_HTTPHEADER => [
                 'x-api-key: ' . $this->apiKey,
@@ -225,19 +282,33 @@ final class AnthropicClient extends LlmVendorClient implements LlmVendorClientIn
         curl_close($curl);
 
         $items = explode("\n", $response);
-        $result = [];
+        $arrayResponseDto = [];
         foreach ($items as $item) {
-            $result[] = $this->jsonDecode($item);
+            $itemResult = $this->jsonDecode($item);
+            if(isset($itemResult['error'])) {
+                if($itemResult['error']['type'] === 'not_found_error') {
+                    return null;
+                } else {
+                    throw new LlmVendorException("Error in batch result: " . $itemResult['error']['message']);
+                }
+            }
+            $dto = AnthropicResponseMapper::makeDto($itemResult['result']['message'] ?? []);
+            if($dto){
+                $dto->customId = $itemResult['custom_id'];
+                $result[$itemResult['custom_id']] = $dto;
+            }
         }
+
         return $result;
     }
 
-    public function cancelBatch(string $messageBatchId): void
+    public function cancelBatch(string $messageBatchId): BatchInfoDto
     {
         $curl = curl_init();
         curl_setopt_array($curl, [
             CURLOPT_URL => "https://api.anthropic.com/v1/messages/batches/$messageBatchId/cancel",
             CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_POST => true,
             CURLOPT_HTTPHEADER => [
                 'x-api-key: ' . $this->apiKey,
                 'anthropic-version: ' . $this->apiVersion,
@@ -246,10 +317,15 @@ final class AnthropicClient extends LlmVendorClient implements LlmVendorClientIn
             CURLOPT_TIMEOUT => $this->timeout,
         ]);
         $this->applyProxy($curl);
-        curl_exec($curl);
+        $response = curl_exec($curl);
         curl_close($curl);
 
-        $this->throwIfError($curl);
+        $result = $this->jsonDecode($response);
+        $this->throwIfError($curl, $result);
+
+//        dump("Cancel batch response:", $response);
+
+        return AnthropicResponseMapper::makeBatchInfoDto($result);
     }
 
     public function calculateTokens(string $text): ?int
