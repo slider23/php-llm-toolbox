@@ -41,6 +41,8 @@ class OpenaiClient extends LlmVendorClient implements LlmVendorClientInterface
     public ?bool $parallel_tool_calls = null;
     public ?string $user = null;
 
+    public ?string $reasoning_effort = null; // "minimal", "low", "medium", "high"
+
     public function __construct(string $model, string $apiKey, ?string $organization = null, ?string $project = null)
     {
         $this->model = $model;
@@ -72,6 +74,7 @@ class OpenaiClient extends LlmVendorClient implements LlmVendorClientInterface
         if (!is_null($this->stream)) $body['stream'] = $this->stream;
         if (!is_null($this->parallel_tool_calls)) $body['parallel_tool_calls'] = $this->parallel_tool_calls;
         if (!is_null($this->user)) $body['user'] = $this->user;
+        if (!is_null($this->reasoning_effort)) $body['reasoning_effort'] = $this->reasoning_effort;
         
         // Add tools if available
         if ($this->hasTools()) {
