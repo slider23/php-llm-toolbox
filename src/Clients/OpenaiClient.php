@@ -27,7 +27,7 @@ class OpenaiClient extends LlmVendorClient implements LlmVendorClientInterface
     public float $frequency_penalty = 0; // -2.0 to 2.0
     public float $presence_penalty = 0; // -2.0 to 2.0
 
-    public int $max_completion_tokens = 4000;
+    public int $max_completion_tokens = 10000;
     public ?array $logit_bias = null;
     public ?bool $logprobs = null;
     public ?int $top_logprobs = null;
