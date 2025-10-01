@@ -111,4 +111,20 @@ trait ProxyTrait
             curl_setopt($curl, CURLOPT_PROXYUSERPWD, $auth);
         }
     }
+
+    public function checkProxy()
+    {
+        $curl = curl_init();
+        $url   = 'https://httpbin.org/ip';
+        curl_setopt_array($curl, [
+            CURLOPT_URL => $url,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_HTTPHEADER => ['Accept: application/json'],
+        ]);
+        $this->applyProxy($curl);
+        $response = curl_exec($curl);
+        $error = curl_error($curl);
+        curl_close($curl);
+        return print_r($response ?: $error, true);
+    }
 }

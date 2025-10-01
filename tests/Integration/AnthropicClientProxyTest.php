@@ -35,6 +35,14 @@ class AnthropicClientProxyTest extends TestCase
 
         $client->setProxy(getenv('PROXY_URL'), getenv('PROXY_LOGIN'), getenv('PROXY_PASSWORD'));
 
+        echo "\nChecking proxy connectivity...\n";
+        echo "Proxy URL: " . getenv('PROXY_URL') . "\n";
+        $checkResult = $client->checkProxy();
+        $proxyIp = explode(":",getenv('PROXY_URL'))[1] ?? '';
+        $proxyIp = preg_replace('/^\/\//', '', $proxyIp);
+        $this->assertStringContainsString($proxyIp, $checkResult, "Proxy check did not return expected IP. Response: $checkResult");
+        echo "Proxy check successful, IP: $checkResult\n";
+
         $response = $client->request($messages);
 
         $this->assertInstanceOf(LlmResponseDto::class, $response);
@@ -47,6 +55,7 @@ class AnthropicClientProxyTest extends TestCase
         $this->assertIsNumeric($response->outputTokens);
         $this->assertIsFloat($response->cost);
         $this->assertGreaterThan(0, $response->cost, "Cost should be greater than 0.");
+        var_dump($response->rawResponse);
     }
 }
 
