@@ -8,6 +8,12 @@ use Slider23\PhpLlmToolbox\Dto\LlmResponseDto;
 class AnthropicResponseMapper
 {
     public static array $pricesByModel = [
+        'claude-sonnet-4-5-20250929' => [
+            'inputTokens' =>                   3 / 1_000_000,
+            'cacheCreationInputTokens' =>   3.75 / 1_000_000,
+            'cacheReadInputTokens' =>        0.3 / 1_000_000,
+            'outputTokens' =>                 15 / 1_000_000,
+        ],
         'claude-opus-4-20250514' => [
             'inputTokens' =>                  15 / 1_000_000,
             'cacheCreationInputTokens' =>  18.75 / 1_000_000,
