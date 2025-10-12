@@ -6,7 +6,7 @@ namespace Slider23\PhpLlmToolbox\Messages;
 
 final class UserMessage
 {
-    public static function make(string $content): array
+    public static function make(string|array $content): array
     {
         return [
             'role' => 'user',

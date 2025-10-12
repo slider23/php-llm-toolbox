@@ -28,7 +28,7 @@ class OpenrouterClient extends LlmVendorClient implements LlmVendorClientInterfa
     public float $min_p = 0; // 0 to 1.0
     public float $top_a = 0; // 0 to 1.0
 
-    public int $max_tokens = 4000;
+    public int $max_tokens = 10000;
     public ?array $logit_bias = null;
     public ?bool $logprobs = null;
 
@@ -108,6 +108,20 @@ class OpenrouterClient extends LlmVendorClient implements LlmVendorClientInterfa
         if($dto->status == "error") {
             throw new LlmVendorException("Openrouter error: ".$dto->errorMessage);
         }
+
+        $maxRetries = 5;
+        do{
+            // fetch cost if not present
+            if(is_null($dto->cost) AND !is_null($dto->id)){
+                $dto->cost = $this->fetchCost($dto->id);
+            }
+            // if cost is still null, wait and retry
+            if(is_null($dto->cost)){
+                sleep(0.2);
+            }
+            $maxRetries--;
+        }while(is_null($dto->cost) AND $maxRetries > 0);
+
         return $dto;
     }
 

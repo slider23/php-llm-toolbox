@@ -27,7 +27,7 @@ class OpenrouterClientTest extends TestCase
 
     public function testSuccessfulBaseRequest(): void
     {
-        $model = "openai/gpt-4o-mini";
+        $model = "openai/gpt-5-mini";
         $client = new OpenrouterClient($model, $this->apiKey);
 
         $client->timeout = 10;
@@ -47,6 +47,8 @@ class OpenrouterClientTest extends TestCase
             $this->assertEquals('openrouter', $response->vendor, "Response vendor should be 'openrouter'.");
             $this->assertIsNumeric($response->inputTokens);
             $this->assertIsNumeric($response->outputTokens);
+            $this->assertIsFloat($response->cost);
+            $this->assertGreaterThan(0, $response->cost, "Cost should be greater than 0.");
 
 //            file_put_contents(__DIR__."/../stubs/openrouter_gpt-4o-mini_response.json", json_encode($response->rawResponse, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
         } catch (LlmVendorException $e) {
@@ -81,12 +83,48 @@ class OpenrouterClientTest extends TestCase
             $this->assertEquals('openrouter', $response->vendor, "Response vendor should be 'openrouter'.");
             $this->assertIsNumeric($response->inputTokens);
             $this->assertIsNumeric($response->outputTokens);
+            $this->assertIsFloat($response->cost);
+            $this->assertGreaterThan(0, $response->cost, "Cost should be greater than 0.");
 
 //            file_put_contents(__DIR__."/../stubs/{$model}_providers_response.json", json_encode($response->rawResponse, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
         } catch (LlmVendorException $e) {
             $this->fail("LlmVendorException was thrown: " . $e->getMessage());
 
         }
+    }
+
+    public function testOCR()
+    {
+        // https://openrouter.ai/docs/features/multimodal/images
+        $imagePath = __DIR__ . '/../stubs/OCR.png';
+        $imageContentType = "image/png"; // image/png, image/jpeg, image/webp, image/gif
+        if(!file_exists($imagePath)){
+            $this->markTestSkipped("OCR image file not found at $imagePath");
+        }
+        $imageData = base64_encode(file_get_contents($imagePath));
+        $model = "google/gemini-2.5-flash";
+        $client = new OpenrouterClient($model, $this->apiKey);
+        $client->max_tokens = 20000;
+        $client->timeout = 120;
+        $client->temperature = 0;
+        $client->top_p = 1;
+        $client->presence_penalty = 0;
+        $client->frequency_penalty = 0;
+        $client->setBody([
+            UserMessage::make([
+                [
+                    'type' => 'text',
+                    'text' => 'Распознай текст с изображения. Не добавляй комментариев, дай только текст без перевода.'
+                ],
+                [
+                    'type' => 'image_url',
+                    'image_url' => "data:$imageContentType;base64,$imageData",
+                ]
+            ])
+        ]);
+        $response = $client->request();
+        $this->assertStringContainsString("observability", $response->assistantContent, "Response content should mention 'observability'.");
+
     }
 
 
