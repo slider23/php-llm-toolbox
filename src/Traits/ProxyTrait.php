@@ -2,6 +2,8 @@
 
 namespace Slider23\PhpLlmToolbox\Traits;
 
+use Slider23\PhpLlmToolbox\Exceptions\ProxyException;
+
 trait ProxyTrait
 {
     private ?string $proxyHost = null;
@@ -125,6 +127,17 @@ trait ProxyTrait
         $response = curl_exec($curl);
         $error = curl_error($curl);
         curl_close($curl);
-        return print_r($response ?: $error, true);
+        if ($error) {
+            throw new ProxyException("Proxy connection error: ".$error);
+        }
+        $json = $this->jsonDecode($response);
+        if (isset($json['origin'])) {
+            if (str_contains($json['origin'], $this->proxyHost)) {
+                return true;
+            }
+            throw new ProxyException("Proxy seems to work, but the IP does not match. Reported IP: ".$json['origin']." Expected to contain: ".$this->proxyHost);
+        }else{
+            throw new ProxyException("Proxy seems to not work, unexpected response: ".$response);
+        }
     }
 }

@@ -6,6 +6,7 @@ use Slider23\PhpLlmToolbox\Dto\EmbeddingDto;
 use Slider23\PhpLlmToolbox\Dto\LlmResponseDto;
 use Slider23\PhpLlmToolbox\Dto\Mappers\OpenaiResponseMapper;
 use Slider23\PhpLlmToolbox\Exceptions\LlmVendorException;
+use Slider23\PhpLlmToolbox\Exceptions\ProxyException;
 use Slider23\PhpLlmToolbox\Tools\ToolAwareTrait;
 use Slider23\PhpLlmToolbox\Traits\ProxyTrait;
 
@@ -88,6 +89,14 @@ class OpenaiClient extends LlmVendorClient implements LlmVendorClientInterface
     public function request(array $messages = null): LlmResponseDto
     {
         if ($messages) $this->setBody($messages);
+
+        if($this->proxyHost){
+            $this->checkProxy();
+        }else{
+            if($this->forceProxy){
+                throw new ProxyException("Proxy is required for Openai API access.");
+            }
+        }
         
         $headers = [
             'Authorization: Bearer ' . $this->apiKey,

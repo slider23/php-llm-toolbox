@@ -11,6 +11,7 @@ abstract class LlmVendorClient
 {
     public array $body = [];
     public bool $debug = false;
+    public bool $forceProxy = true; // use proxy by default
 
     public function enableDebug()
     {
@@ -68,6 +69,11 @@ abstract class LlmVendorClient
         }catch (\JsonException $e){
             throw new WrongJsonException($e);
         }
+    }
+
+    public function enableRequestWithoutProxy()
+    {
+        $this->forceProxy = false;
     }
 
 }

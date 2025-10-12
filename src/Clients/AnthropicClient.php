@@ -6,6 +6,7 @@ use Slider23\PhpLlmToolbox\Dto\BatchInfoDto;
 use Slider23\PhpLlmToolbox\Dto\LlmResponseDto;
 use Slider23\PhpLlmToolbox\Dto\Mappers\AnthropicResponseMapper;
 use Slider23\PhpLlmToolbox\Exceptions\LlmVendorException;
+use Slider23\PhpLlmToolbox\Exceptions\ProxyException;
 use Slider23\PhpLlmToolbox\Exceptions\WrongJsonException;
 use Slider23\PhpLlmToolbox\Helper;
 use Slider23\PhpLlmToolbox\Tools\ToolAwareTrait;
@@ -127,6 +128,14 @@ final class AnthropicClient extends LlmVendorClient implements LlmVendorClientIn
     public function request(array $messages = null): LlmResponseDto
     {
         if($messages) $this->setBody($messages);
+
+        if($this->proxyHost){
+            $this->checkProxy();
+        }else{
+            if($this->forceProxy){
+                throw new ProxyException("Proxy is required for Anthropic API access.");
+            }
+        }
 
         $curl = curl_init();
         curl_setopt_array($curl, [

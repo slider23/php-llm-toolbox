@@ -49,6 +49,8 @@ class OpenrouterClient extends LlmVendorClient implements LlmVendorClientInterfa
         $this->model = $model;
         $this->apiKey = $apiKey;
         $this->providers = $providers;
+
+        $this->forceProxy = false;
     }
 
     public function setBody(array $messages): void
