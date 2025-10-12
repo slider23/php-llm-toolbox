@@ -93,6 +93,7 @@ class PerplexityClient extends LlmVendorClient implements LlmVendorClientInterfa
 
         $result = $this->jsonDecode($response);
         $this->throwIfError($curl, $result);
+        $this->response = $result;
 
         $dto = PerplexityResponseMapper::makeDto($result);
         if($dto->status == "error") {

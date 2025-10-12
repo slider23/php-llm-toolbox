@@ -131,6 +131,7 @@ class OpenaiClient extends LlmVendorClient implements LlmVendorClientInterface
 
         $result = $this->jsonDecode($response);
         $this->throwIfError($curl, $result);
+        $this->response = $result;
 
         $dto = OpenaiResponseMapper::makeDto($result);
         if ($dto->status == "error") {

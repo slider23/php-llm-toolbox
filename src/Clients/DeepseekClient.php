@@ -77,6 +77,7 @@ final class DeepseekClient extends LlmVendorClient implements LlmVendorClientInt
 
         $result = $this->jsonDecode($response);
         $this->throwIfError($curl, $result);
+        $this->response = $result;
 
         $dto = DeepseekResponseMapper::makeDto($result);
         if($dto->status == "error") {

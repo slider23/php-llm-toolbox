@@ -105,6 +105,7 @@ class OpenrouterClient extends LlmVendorClient implements LlmVendorClientInterfa
 
         $result = $this->jsonDecode($response);
         $this->throwIfError($curl, $result);
+        $this->response = $result;
 
         $dto = OpenrouterResponseMapper::makeDto($result);
         if($dto->status == "error") {

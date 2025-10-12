@@ -10,6 +10,7 @@ use Slider23\PhpLlmToolbox\Exceptions\WrongJsonException;
 abstract class LlmVendorClient
 {
     public array $body = [];
+    public array $response = [];
     public bool $debug = false;
     public bool $forceProxy = true; // use proxy by default
 
@@ -76,4 +77,8 @@ abstract class LlmVendorClient
         $this->forceProxy = false;
     }
 
+    public function getRequestAndResponse()
+    {
+        return [$this->body, $this->response];
+    }
 }
