@@ -12,7 +12,7 @@ abstract class LlmVendorClient
     public array $body = [];
     public array $response = [];
     public bool $debug = false;
-    public bool $forceProxy = true; // use proxy by default
+    public bool $forceProxy = false; // use proxy by default
 
     public function enableDebug()
     {
@@ -80,5 +80,10 @@ abstract class LlmVendorClient
     public function getRequestAndResponse()
     {
         return [$this->body, $this->response];
+    }
+
+    public function getRequest()
+    {
+        return $this->body;
     }
 }

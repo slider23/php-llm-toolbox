@@ -7,11 +7,15 @@ use Slider23\PhpLlmToolbox\Dto\Mappers\OpenrouterResponseMapper;
 use Slider23\PhpLlmToolbox\Exceptions\LlmVendorException;
 use Slider23\PhpLlmToolbox\Tools\ToolAwareTrait;
 use Slider23\PhpLlmToolbox\Traits\ProxyTrait;
+use Slider23\PhpLlmToolbox\Traits\SOTrait;
 
 class OpenrouterClient extends LlmVendorClient implements LlmVendorClientInterface
 {
     use ToolAwareTrait;
     use ProxyTrait;
+    use SOTrait;
+
+    public string $url = 'https://openrouter.ai/api/v1/chat/completions';
     public string $model;
     public string $apiKey;
 
@@ -33,8 +37,6 @@ class OpenrouterClient extends LlmVendorClient implements LlmVendorClientInterfa
     public ?bool $logprobs = null;
 
     public ?int $top_logprobs = null;
-    public ?array $response_format = null; // ["type" => "json_object"]
-    public ?bool $structured_outputs = null;
     public ?array $stop = null;
     public ?array $tools = null;
     public ?array $tool_choice = null;
@@ -42,6 +44,7 @@ class OpenrouterClient extends LlmVendorClient implements LlmVendorClientInterfa
     public bool $include_reasoning = false;
     public string $http_referer = "php-llm-toolbox";
     public string $x_title = "php-llm-toolbox";
+    public array $extra_body = [];
 
 
     public function __construct(string $model , string $apiKey, array $providers = [])
@@ -74,7 +77,6 @@ class OpenrouterClient extends LlmVendorClient implements LlmVendorClientInterfa
         if(!is_null($this->logprobs)) $body['logprobs'] = $this->logprobs;
         if(!is_null($this->top_logprobs)) $body['top_logprobs'] = $this->top_logprobs;
         if(!is_null($this->response_format)) $body['response_format'] = $this->response_format;
-        if(!is_null($this->structured_outputs)) $body['structured_outputs'] = $this->structured_outputs;
         if(!is_null($this->stop)) $body['stop'] = $this->stop;
         if(!is_null($this->tools)) $body['tools'] = $this->tools;
         if(!is_null($this->tool_choice)) $body['tool_choice'] = $this->tool_choice;
@@ -87,7 +89,7 @@ class OpenrouterClient extends LlmVendorClient implements LlmVendorClientInterfa
         if($messages) $this->setBody($messages);
         $curl = curl_init();
         curl_setopt_array($curl, [
-            CURLOPT_URL => 'https://openrouter.ai/api/v1/chat/completions',
+            CURLOPT_URL => $this->url,
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_POST => true,
             CURLOPT_HTTPHEADER => [

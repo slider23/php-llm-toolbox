@@ -11,7 +11,7 @@ class LlmResponseDto
     public ?string $model = null;
     public ?string $vendor = null;
     public ?string $assistantContent = null;
-    public ?string $assistantThinkingContent = null;
+    public ?string $reasoningContent = null;
     public ?string $finishReason = null;
 
     public ?int $inputTokens = null;

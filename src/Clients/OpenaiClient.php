@@ -9,11 +9,13 @@ use Slider23\PhpLlmToolbox\Exceptions\LlmVendorException;
 use Slider23\PhpLlmToolbox\Exceptions\ProxyException;
 use Slider23\PhpLlmToolbox\Tools\ToolAwareTrait;
 use Slider23\PhpLlmToolbox\Traits\ProxyTrait;
+use Slider23\PhpLlmToolbox\Traits\SOTrait;
 
 class OpenaiClient extends LlmVendorClient implements LlmVendorClientInterface
 {
     use ToolAwareTrait;
     use ProxyTrait;
+    use SOTrait;
 
     public string $model;
     public string $apiKey;
@@ -32,7 +34,6 @@ class OpenaiClient extends LlmVendorClient implements LlmVendorClientInterface
     public ?array $logit_bias = null;
     public ?bool $logprobs = null;
     public ?int $top_logprobs = null;
-    public ?array $response_format = null; // ["type" => "json_object"]
     public ?int $seed = null;
     public ?string $service_tier = null;
     public ?array $stop = null;
@@ -68,7 +69,6 @@ class OpenaiClient extends LlmVendorClient implements LlmVendorClientInterface
         if (!is_null($this->logit_bias)) $body['logit_bias'] = $this->logit_bias;
         if (!is_null($this->logprobs)) $body['logprobs'] = $this->logprobs;
         if (!is_null($this->top_logprobs)) $body['top_logprobs'] = $this->top_logprobs;
-        if (!is_null($this->response_format)) $body['response_format'] = $this->response_format;
         if (!is_null($this->seed)) $body['seed'] = $this->seed;
         if (!is_null($this->service_tier)) $body['service_tier'] = $this->service_tier;
         if (!is_null($this->stop)) $body['stop'] = $this->stop;
@@ -76,6 +76,7 @@ class OpenaiClient extends LlmVendorClient implements LlmVendorClientInterface
         if (!is_null($this->parallel_tool_calls)) $body['parallel_tool_calls'] = $this->parallel_tool_calls;
         if (!is_null($this->user)) $body['user'] = $this->user;
         if (!is_null($this->reasoning_effort)) $body['reasoning_effort'] = $this->reasoning_effort;
+        if (!is_null($this->response_format)) $body['response_format'] = $this->response_format;
         
         // Add tools if available
         if ($this->hasTools()) {
