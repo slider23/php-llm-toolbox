@@ -1,6 +1,8 @@
 # PHP LLM Toolbox
 
-PHP library for interaction with LLM providers. (Content from DESCRIPTION.md can be merged here if desired)
+PHP library for interaction with LLM providers. 
+
+For inner purpose only. 
 
 ## Installation
 
