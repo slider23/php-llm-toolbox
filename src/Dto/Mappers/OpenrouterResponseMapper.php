@@ -25,6 +25,7 @@ class OpenrouterResponseMapper
         $dto->model = $responseArray['model'] ?? null;
         if(isset($responseArray['choices'][0])){
             $dto->assistantContent = $responseArray['choices'][0]['message']['content'] ?? null;
+            $dto->reasoningContent = $responseArray['choices'][0]['message']['reasoning'] ?? null;
             $dto->finishReason = $responseArray['choices'][0]['finish_reason'] ?? null;
             
             // Handle tool calls

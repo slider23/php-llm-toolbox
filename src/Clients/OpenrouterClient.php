@@ -41,10 +41,12 @@ class OpenrouterClient extends LlmVendorClient implements LlmVendorClientInterfa
     public ?array $tools = null;
     public ?array $tool_choice = null;
 
-    public bool $include_reasoning = false;
-    public string $http_referer = "php-llm-toolbox";
+    public bool $include_reasoning = true;
+    public string $http_referer = "https://github.com/slider23/php-llm-toolbox";
     public string $x_title = "php-llm-toolbox";
     public array $extra_body = [];
+
+    public ?array $reasoning = null;
 
 
     public function __construct(string $model , string $apiKey, array $providers = [])
@@ -54,6 +56,27 @@ class OpenrouterClient extends LlmVendorClient implements LlmVendorClientInterfa
         $this->providers = $providers;
 
         $this->forceProxy = false;
+    }
+
+    public function enableReasoning(string $effort = "medium", int $maxReasoningTokens = 2000, $summary = "auto"): void
+    {
+        // effort: xhigh, high, medium, low, minimal, none
+        if($effort == "none") {
+            $this->reasoning = null;
+        }else{
+            $this->reasoning = [
+                "enabled" => true,
+                "effort" => $effort,
+                "max_reasoning_tokens" => $maxReasoningTokens,
+                "summary" => $summary
+            ];
+        }
+        $this->include_reasoning = true;
+    }
+    public function disableReasoning()
+    {
+        $this->reasoning = null;
+        $this->include_reasoning = false;
     }
 
     public function setBody(array $messages): void
@@ -80,6 +103,7 @@ class OpenrouterClient extends LlmVendorClient implements LlmVendorClientInterfa
         if(!is_null($this->stop)) $body['stop'] = $this->stop;
         if(!is_null($this->tools)) $body['tools'] = $this->tools;
         if(!is_null($this->tool_choice)) $body['tool_choice'] = $this->tool_choice;
+        if(!is_null($this->reasoning)) $body['reasoning'] = $this->reasoning;
         $this->body = $body;
     }
 
